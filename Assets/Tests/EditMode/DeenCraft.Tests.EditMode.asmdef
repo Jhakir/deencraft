@@ -6,7 +6,9 @@
         "UnityEditor.TestRunner",
         "DeenCraft.Core",
         "DeenCraft.Auth",
-        "DeenCraft.World"
+        "DeenCraft.World",
+        "DeenCraft.Player",
+        "DeenCraft.Crafting"
     ],
     "includePlatforms": [
         "Editor"
