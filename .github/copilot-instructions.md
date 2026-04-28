@@ -62,3 +62,18 @@ docs/             # Project docs and planning
 
 ## Reference Docs
 - Full plan: `docs/deencraft-plan.md`
+
+## Development Methodology (Superpowers Skills)
+This project uses the [Superpowers](https://github.com/obra/superpowers) agentic development framework. Skills are in `.github/skills/`. Key workflows:
+
+| Skill | When to use |
+|---|---|
+| `brainstorming` | Before any new feature — refine idea into a spec first |
+| `writing-plans` | Turn an approved spec into a bite-sized task plan |
+| `executing-plans` | Execute a written plan with review checkpoints |
+| `subagent-driven-development` | Execute a plan using fresh subagents per task |
+| `test-driven-development` | Always — write failing test before any implementation code |
+| `systematic-debugging` | Before proposing any bug fix — find root cause first |
+| `verification-before-completion` | Before claiming any task is done — run and show evidence |
+| `using-git-worktrees` | When starting feature work that needs branch isolation |
+| `finishing-a-development-branch` | When implementation is complete — merge, PR, or discard |
