@@ -60,8 +60,21 @@ docs/             # Project docs and planning
 - Do not add multiplayer networking (v1)
 - Do not use `public` fields where `[SerializeField]` private fields will do
 
+## Start of Session — Read Docs First
+
+Before taking any action in a new conversation, read these files in order:
+
+1. `docs/deencraft-plan.md` — full 9-phase game plan, phase scope, and feature list
+2. `docs/phase_1_status.md` — Phase 1 completion summary, errors encountered, and Phase 2 notes
+3. Any `docs/phase_N_status.md` for phases already completed
+4. The relevant plan file in `docs/superpowers/plans/` if one exists for the phase being worked on
+
+Do not assume context from a previous conversation. Always re-read the docs to know where the project stands before suggesting or implementing anything.
+
 ## Reference Docs
 - Full plan: `docs/deencraft-plan.md`
+- Phase status files: `docs/phase_*_status.md`
+- Implementation plans: `docs/superpowers/plans/`
 
 ## Development Methodology (Superpowers Skills)
 This project uses the [Superpowers](https://github.com/obra/superpowers) agentic development framework. Skills are in `.github/skills/`. Key workflows:
