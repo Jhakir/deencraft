@@ -21,9 +21,21 @@ namespace DeenCraft.World
                     float worldX = chunkX * GameConstants.ChunkWidth  + lx;
                     float worldZ = chunkZ * GameConstants.ChunkDepth  + lz;
 
-                    int             surfaceY = GetSurfaceHeight(worldX, worldZ, seedOffset);
-                    BiomeDefinition biome    = BiomeSystem.GetDefinition(
-                                                  BiomeSystem.GetBiome(worldX, worldZ, seed));
+                    BiomeType       biomeType = BiomeSystem.GetBiome(worldX, worldZ, seed);
+                    BiomeDefinition biome     = BiomeSystem.GetDefinition(biomeType);
+                    int             surfaceY  = GetSurfaceHeight(worldX, worldZ, seedOffset);
+
+                    // Desert dune height variation
+                    if (biomeType == BiomeType.Desert)
+                    {
+                        float dune = Mathf.PerlinNoise(
+                            worldX * GameConstants.DuneNoiseScale,
+                            worldZ * GameConstants.DuneNoiseScale);
+                        surfaceY += Mathf.FloorToInt(dune * GameConstants.DuneHeight);
+                        surfaceY  = Mathf.Clamp(surfaceY,
+                            GameConstants.MinTerrainHeight,
+                            GameConstants.MaxTerrainHeight);
+                    }
 
                     for (int y = 0; y < GameConstants.ChunkHeight; y++)
                     {
@@ -31,6 +43,35 @@ namespace DeenCraft.World
                     }
                 }
             }
+
+            // River carving — Riverside biome only
+            BiomeType centreBiome = BiomeSystem.GetBiome(
+                chunkX * GameConstants.ChunkWidth + GameConstants.ChunkWidth / 2,
+                chunkZ * GameConstants.ChunkDepth + GameConstants.ChunkDepth / 2,
+                seed);
+
+            if (centreBiome == BiomeType.Riverside)
+            {
+                for (int lx = GameConstants.RiverXMin; lx <= GameConstants.RiverXMax; lx++)
+                {
+                    for (int lz = 0; lz < GameConstants.ChunkDepth; lz++)
+                    {
+                        // Carve channel from above down to SeaLevel - 2
+                        for (int y = GameConstants.SeaLevel + 10; y >= GameConstants.SeaLevel - 2; y--)
+                            chunk.SetBlock(lx, y, lz, BlockType.Air);
+
+                        int floorY = GameConstants.SeaLevel - 2;
+                        if (floorY >= 0)
+                            chunk.SetBlock(lx, floorY, lz, BlockType.Sand);
+
+                        for (int y = floorY + 1; y <= GameConstants.SeaLevel - 1; y++)
+                            chunk.SetBlock(lx, y, lz, BlockType.Water);
+                    }
+                }
+            }
+
+            // Feature decoration (trees, vegetation, structures)
+            FeatureGenerator.Decorate(chunk, chunkX, chunkZ, seed);
         }
 
         // ── Private helpers ───────────────────────────────────────────────────

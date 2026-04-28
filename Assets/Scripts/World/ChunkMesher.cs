@@ -11,7 +11,7 @@ namespace DeenCraft.World
     /// </summary>
     public static class ChunkMesher
     {
-        private const int TotalBlockTypes = 13; // must match BlockType enum count
+        private const int TotalBlockTypes = 20; // must match BlockType enum count
 
         // neighbors: [0]=+X, [1]=-X, [2]=+Z, [3]=-Z
         public static MeshData BuildMesh(ChunkData chunk, ChunkData[] neighbors)

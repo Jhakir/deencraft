@@ -92,8 +92,15 @@ namespace DeenCraft
         public const byte BlockLeaves   = 8;
         public const byte BlockMosque   = 9;  // decorative mosque tile
         public const byte BlockIce      = 10;
-        public const byte BlockMoss     = 11;
-        public const byte BlockWheat    = 12;
+        public const byte BlockMoss       = 11;
+        public const byte BlockWheat      = 12;
+        public const byte BlockCactus     = 13;
+        public const byte BlockMudBrick   = 14;
+        public const byte BlockPalmWood   = 15;
+        public const byte BlockOliveLeaves = 16;
+        public const byte BlockFlower     = 17;
+        public const byte BlockBoat       = 18;
+        public const byte BlockThatch     = 19;
 
         // ── World Generation ─────────────────────────────────
         public const int   SeaLevel            = 64;
@@ -106,5 +113,19 @@ namespace DeenCraft
 
         // ── Water ────────────────────────────────────────────
         public const int MaxWaterSpread = 16;
-    }
+        // ── Feature Generator ────────────────────────────────
+        public const float TreeNoiseScale        = 0.1f;
+        public const float VillageNoiseScale     = 0.3f;
+        public const float VillageNoiseThreshold = 0.70f;
+        public const float OasisNoiseThreshold   = 0.85f;
+        public const float DuneNoiseScale        = 0.08f;
+        public const float DuneHeight            = 8f;
+        public const int   RiverXMin             = 6;
+        public const int   RiverXMax             = 10;
+        public const int   MaxTreesPerChunk      = 3;
+        public const int   HouseWidth            = 7;
+        public const int   HouseDepth            = 5;
+        public const int   HouseHeight           = 4;
+        public const int   HouseAnchorX          = 4;
+        public const int   HouseAnchorZ          = 4;    }
 }

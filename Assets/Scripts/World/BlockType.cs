@@ -15,8 +15,15 @@ namespace DeenCraft.World
         Wood   = 7,
         Leaves = 8,
         Mosque = 9,
-        Ice    = 10,
-        Moss   = 11,
-        Wheat  = 12,
+        Ice        = 10,
+        Moss       = 11,
+        Wheat      = 12,
+        Cactus     = 13,
+        MudBrick   = 14,
+        PalmWood   = 15,
+        OliveLeaves = 16,
+        Flower     = 17,
+        Boat       = 18,
+        Thatch     = 19,
     }
 }
