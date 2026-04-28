@@ -1,7 +1,9 @@
 {
     "name": "DeenCraft.Villager",
     "rootNamespace": "DeenCraft.Villager",
-    "references": [],
+    "references": [
+        "DeenCraft.Core"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

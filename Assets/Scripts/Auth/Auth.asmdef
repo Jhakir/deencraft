@@ -1,7 +1,9 @@
 {
     "name": "DeenCraft.Auth",
     "rootNamespace": "DeenCraft.Auth",
-    "references": [],
+    "references": [
+        "DeenCraft.Core"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

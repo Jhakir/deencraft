@@ -2,7 +2,8 @@
     "name": "DeenCraft.UI",
     "rootNamespace": "DeenCraft.UI",
     "references": [
-        "GUID:DeenCraft.Auth"
+        "DeenCraft.Core",
+        "DeenCraft.Auth"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

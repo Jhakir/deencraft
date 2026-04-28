@@ -1,7 +1,9 @@
 {
     "name": "DeenCraft.World",
     "rootNamespace": "DeenCraft.World",
-    "references": [],
+    "references": [
+        "DeenCraft.Core"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

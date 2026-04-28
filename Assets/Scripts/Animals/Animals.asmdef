@@ -1,7 +1,9 @@
 {
     "name": "DeenCraft.Animals",
     "rootNamespace": "DeenCraft.Animals",
-    "references": [],
+    "references": [
+        "DeenCraft.Core"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

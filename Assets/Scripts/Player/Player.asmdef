@@ -2,7 +2,8 @@
     "name": "DeenCraft.Player",
     "rootNamespace": "DeenCraft.Player",
     "references": [
-        "GUID:DeenCraft.World"
+        "DeenCraft.Core",
+        "DeenCraft.World"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
