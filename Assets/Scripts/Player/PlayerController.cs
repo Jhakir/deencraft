@@ -80,9 +80,12 @@ namespace DeenCraft.Player
 
             if (_cameraTarget != null)
             {
-                _cameraTarget.localRotation = Quaternion.Euler(_pitch, 0f, 0f);
-                _cameraTarget.localPosition = new Vector3(0f, 1.6f, -4f);
-                // Make camera look at player head
+                // Position camera on a pitch-rotated arm behind the player
+                float pitchRad = _pitch * Mathf.Deg2Rad;
+                float armLength = 4f;
+                float camY   = 1.6f + armLength * Mathf.Sin(pitchRad);
+                float camZ   = -armLength * Mathf.Cos(pitchRad);
+                _cameraTarget.localPosition = new Vector3(0f, camY, camZ);
                 _cameraTarget.LookAt(transform.position + Vector3.up * 1.4f);
             }
         }
