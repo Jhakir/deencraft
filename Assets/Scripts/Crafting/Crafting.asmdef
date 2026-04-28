@@ -2,7 +2,9 @@
     "name": "DeenCraft.Crafting",
     "rootNamespace": "DeenCraft.Crafting",
     "references": [
-        "DeenCraft.Core"
+        "DeenCraft.Core",
+        "DeenCraft.World",
+        "DeenCraft.Player"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
