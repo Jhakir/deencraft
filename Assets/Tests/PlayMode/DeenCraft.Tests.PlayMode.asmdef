@@ -1,0 +1,23 @@
+{
+    "name": "DeenCraft.Tests.PlayMode",
+    "rootNamespace": "DeenCraft.Tests.PlayMode",
+    "references": [
+        "UnityEngine.TestRunner",
+        "DeenCraft.Auth",
+        "DeenCraft.World",
+        "DeenCraft.Player"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
