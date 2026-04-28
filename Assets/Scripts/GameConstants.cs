@@ -94,5 +94,17 @@ namespace DeenCraft
         public const byte BlockIce      = 10;
         public const byte BlockMoss     = 11;
         public const byte BlockWheat    = 12;
+
+        // ── World Generation ─────────────────────────────────
+        public const int   SeaLevel            = 64;
+        public const float BiomeNoiseScale     = 0.003f;
+        public const float TerrainNoiseScale   = 0.004f;
+        public const int   TerrainOctaves      = 3;
+        public const float TerrainPersistence  = 0.5f;
+        public const int   MinTerrainHeight    = 60;
+        public const int   MaxTerrainHeight    = 120;
+
+        // ── Water ────────────────────────────────────────────
+        public const int MaxWaterSpread = 16;
     }
 }
