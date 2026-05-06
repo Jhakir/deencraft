@@ -204,6 +204,22 @@ namespace DeenCraft.World
         }
 
         /// <summary>
+        /// Returns the BlockType at the given world-space voxel coordinates.
+        /// Returns BlockType.Air when the chunk is not loaded or coords are out of bounds.
+        /// </summary>
+        public BlockType GetBlock(int worldX, int worldY, int worldZ)
+        {
+            var chunkCoord = WorldToChunkCoord(new Vector3Int(worldX, worldY, worldZ));
+            if (!_chunkDataCache.TryGetValue(chunkCoord, out var data)) return BlockType.Air;
+
+            int lx = worldX - chunkCoord.x * GameConstants.ChunkWidth;
+            int lz = worldZ - chunkCoord.y * GameConstants.ChunkDepth;
+
+            if (!data.IsInBounds(lx, worldY, lz)) return BlockType.Air;
+            return data.GetBlock(lx, worldY, lz);
+        }
+
+        /// <summary>
         /// Sets a block at a world position and marks the affected chunk (and boundary neighbors) dirty.
         /// </summary>
         public void SetBlock(Vector3Int worldPos, BlockType block)

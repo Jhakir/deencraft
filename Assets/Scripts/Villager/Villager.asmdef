@@ -2,7 +2,8 @@
     "name": "DeenCraft.Villager",
     "rootNamespace": "DeenCraft.Villager",
     "references": [
-        "DeenCraft.Core"
+        "DeenCraft.Core",
+        "DeenCraft.Player"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

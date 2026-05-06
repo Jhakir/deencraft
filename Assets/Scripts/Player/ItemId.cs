@@ -1,4 +1,6 @@
 // Assets/Scripts/Player/ItemId.cs
+// NOTE: Block-range items (1–19) do NOT have the same integer values as BlockType (1–19).
+// Use BlockItemMap.BlockTypeToItemId / ItemIdToBlockType for bidirectional conversion.
 
 namespace DeenCraft.Player
 {
@@ -6,7 +8,7 @@ namespace DeenCraft.Player
     {
         None = 0,
 
-        // Block items (match BlockType byte values 1-19)
+        // Block items — range 1-19 (NOT matching BlockType integer values; see BlockItemMap)
         Grass     = 1,
         Dirt      = 2,
         Stone     = 3,
@@ -35,6 +37,17 @@ namespace DeenCraft.Player
         WoodShovel   = 104,
         StoneShovel  = 105,
 
+        // Trade / currency items
+        Diamond = 110,
+        Gold    = 111,
+
+        // Animal drops
+        Wool    = 120,
+        Meat    = 121,
+        Egg     = 122,
+        Milk    = 123,
+        Feather = 124,
+
         // Crafting ingredients
         Stick  = 200,
         String = 201,
@@ -44,5 +57,7 @@ namespace DeenCraft.Player
         Date    = 301,
         Fig     = 302,
         Falafel = 303,
+        Fish    = 304,
     }
 }
+

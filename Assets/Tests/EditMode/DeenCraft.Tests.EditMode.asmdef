@@ -8,7 +8,9 @@
         "DeenCraft.Auth",
         "DeenCraft.World",
         "DeenCraft.Player",
-        "DeenCraft.Crafting"
+        "DeenCraft.Crafting",
+        "DeenCraft.Animals",
+        "DeenCraft.Villager"
     ],
     "includePlatforms": [
         "Editor"
