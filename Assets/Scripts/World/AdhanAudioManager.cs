@@ -2,13 +2,15 @@
 // Plays an Adhan audio clip at each of the five daily prayer times.
 // Attach to a persistent GameObject in the same scene as DayNightCycle.
 //
-// HOW TO ADD YOUR OWN VOICE RECORDING:
-//   1. Record your Adhan in Voice Memos / GarageBand on Mac.
+// OPTIONAL — CHILDREN CAN RECORD THEIR OWN VOICE:
+//   If a child wants to hear their own Adhan recording in the game:
+//   1. Record in Voice Memos / GarageBand (any recorder works).
 //   2. Export as .mp3 or .wav.
-//   3. Drag the file into Assets/Audio/ in the Unity Project window.
-//   4. In the Inspector for this component, expand "Adhan Clips" and increase
-//      the size by 1, then drag your clip into the new slot.
-//   5. In the parent settings screen, the clip-index selector will show the new option.
+//   3. Drop the file into Assets/Audio/ in the Unity Project window.
+//   4. In the Inspector, expand "Adhan Clips", increase the size by 1,
+//      and drag the clip into the new slot.
+//   5. The child picks their clip from the in-game settings screen.
+//   Slot 0 is always the built-in default Adhan. Custom recordings start at Slot 1.
 using UnityEngine;
 using DeenCraft;
 
@@ -16,18 +18,20 @@ namespace DeenCraft.World
 {
     /// <summary>
     /// Listens to <see cref="DayNightCycle.OnPrayerTime"/> and plays the
-    /// parent-selected Adhan clip (toggle + clip choice persisted via PlayerPrefs).
+    /// selected Adhan clip at each prayer time.
     ///
-    /// Multiple clips are supported: assign them in the Inspector under
-    /// <c>_adhanClips</c>.  The parent selects which clip to use via
-    /// <see cref="SetClipIndex"/> (wired to the settings UI in Phase 8).
+    /// Multiple clips are supported so children can optionally use their own
+    /// voice recording. Slot 0 is always the built-in default.
+    /// The enabled toggle and clip choice are persisted via PlayerPrefs.
+    /// Both are exposed through the settings UI (Phase 8).
     /// </summary>
     [RequireComponent(typeof(AudioSource))]
     public sealed class AdhanAudioManager : MonoBehaviour
     {
         // ── Inspector ─────────────────────────────────────────────────────────
-        [Tooltip("Assign one or more Adhan recordings here. Parents can pick between them.\n" +
-                 "Slot 0 = default clip. Add extra slots for custom voice recordings.")]
+        [Tooltip("Adhan audio clips. Slot 0 = built-in default Adhan.\n" +
+                 "Children can optionally record their own voice and add extra slots.\n" +
+                 "The child selects which clip to use from the in-game settings screen.")]
         [SerializeField] private AudioClip[] _adhanClips = new AudioClip[0];
 
         // ── State ─────────────────────────────────────────────────────────────
