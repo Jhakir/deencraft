@@ -127,5 +127,26 @@ namespace DeenCraft
         public const int   HouseDepth            = 5;
         public const int   HouseHeight           = 4;
         public const int   HouseAnchorX          = 4;
-        public const int   HouseAnchorZ          = 4;    }
+        public const int   HouseAnchorZ          = 4;
+
+        // ── Day / Night Cycle ─────────────────────────────────
+        /// <summary>How many real seconds equal one full in-game day.</summary>
+        public const float DayLengthSeconds = 1200f; // 20-minute day
+
+        // In-game prayer times as a fraction of a full day (0 = midnight, 0.5 = noon).
+        public const float PrayerTimeFajr    = 0.20f; // ~dawn
+        public const float PrayerTimeDhuhr   = 0.50f; // midday
+        public const float PrayerTimeAsr     = 0.65f; // afternoon
+        public const float PrayerTimeMaghrib = 0.80f; // ~sunset
+        public const float PrayerTimeIsha    = 0.90f; // night
+
+        // ── Adhan / Audio ─────────────────────────────────────
+        /// <summary>PlayerPrefs key: 1 = Adhan enabled, 0 = disabled. Set by parent.</summary>
+        public const string PrefsAdhanEnabledKey   = "deencraft_adhan_enabled";
+
+        /// <summary>PlayerPrefs key: index into AdhanAudioManager.AdhanClips array.</summary>
+        public const string PrefsAdhanClipIndexKey = "deencraft_adhan_clip_index";
+
+        public const float AdhanVolume = 0.75f;
+    }
 }
