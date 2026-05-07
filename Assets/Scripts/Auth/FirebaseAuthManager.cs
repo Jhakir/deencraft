@@ -192,6 +192,17 @@ namespace DeenCraft.Auth
                 SessionManager.ActiveParent.uid, SessionManager.ActiveChild.id, saveId);
         }
 
+        public Task<List<WorldSaveData>> ListWorldSavesAsync()
+        {
+            ValidateInitialized();
+            ValidateParentSignedIn();
+            if (!SessionManager.IsChildActive)
+                throw new InvalidOperationException("No active child profile.");
+
+            return _backend.ListWorldSavesAsync(
+                SessionManager.ActiveParent.uid, SessionManager.ActiveChild.id);
+        }
+
         // ── Private ────────────────────────────────────────────────────────
 
         private void TryRestoreSession()
