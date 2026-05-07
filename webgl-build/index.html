@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Deencraft</title>
+
+  <!-- Prevent FOUC on iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#1a2a1a">
+
+  <style>
+    /* ── Reset ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: #1a2a1a;
+      overflow: hidden;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #f0e8d0;
+    }
+
+    /* ── Loading overlay ───────────────────────────────────── */
+    #loading-overlay {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: #1a2a1a;
+      z-index: 100;
+      transition: opacity 0.6s ease;
+    }
+    #loading-overlay.fade-out { opacity: 0; pointer-events: none; }
+
+    /* ── Geometric star pattern (SVG background) ───────────── */
+    .star-bg {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg fill='none' stroke='%23ffffff0d' stroke-width='1'%3E%3Cpolygon points='40,4 47,28 72,28 52,43 59,68 40,54 21,68 28,43 8,28 33,28'/%3E%3Cpolygon points='40,16 45,32 62,32 49,42 54,58 40,49 26,58 31,42 18,32 35,32' stroke='%23ffffff06'/%3E%3C/g%3E%3C/svg%3E");
+      background-size: 80px 80px;
+      opacity: 0.8;
+    }
+
+    /* ── Crescent + star logo ───────────────────────────────── */
+    .logo-wrap {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 18px;
+    }
+
+    .crescent {
+      width: 100px; height: 100px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1);   opacity: 1;   }
+      50%       { transform: scale(1.05); opacity: 0.85; }
+    }
+
+    .game-title {
+      font-size: 3rem; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      background: linear-gradient(135deg, #d4af37 0%, #f5e27a 50%, #d4af37 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 2px 8px #d4af3755);
+    }
+
+    .tagline {
+      font-size: 0.95rem; letter-spacing: 0.25em;
+      color: #a8c878; text-transform: uppercase; opacity: 0.9;
+    }
+
+    /* ── Progress bar ───────────────────────────────────────── */
+    .progress-wrap {
+      position: relative; z-index: 1;
+      margin-top: 40px; width: min(420px, 85vw);
+      display: flex; flex-direction: column; align-items: center; gap: 12px;
+    }
+
+    .progress-track {
+      width: 100%; height: 8px;
+      background: #2a3a2a; border-radius: 999px;
+      border: 1px solid #3a5a3a; overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, #4caf50, #8bc34a, #d4af37);
+      border-radius: 999px;
+      transition: width 0.2s ease;
+      box-shadow: 0 0 8px #8bc34a88;
+    }
+
+    .progress-label {
+      font-size: 0.78rem; letter-spacing: 0.15em;
+      color: #a8c878; opacity: 0.8;
+    }
+
+    /* ── Decorative Arabic-style border ─────────────────────── */
+    .border-top, .border-bottom {
+      position: absolute; left: 0; right: 0;
+      height: 6px;
+      background: repeating-linear-gradient(
+        90deg,
+        #d4af37 0px, #d4af37 6px,
+        transparent 6px, transparent 12px,
+        #8bc34a 12px, #8bc34a 18px,
+        transparent 18px, transparent 24px
+      );
+      opacity: 0.4;
+    }
+    .border-top  { top: 0; }
+    .border-bottom { bottom: 0; }
+
+    /* ── Unity canvas ───────────────────────────────────────── */
+    #unity-canvas {
+      position: fixed; inset: 0;
+      width: 100%; height: 100%;
+      display: block;
+    }
+
+    /* ── Error banner ───────────────────────────────────────── */
+    #error-banner {
+      display: none; position: fixed;
+      bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #7a1a1a; color: #ffd0d0;
+      padding: 12px 24px; border-radius: 8px;
+      font-size: 0.88rem; z-index: 200;
+      max-width: 90vw; text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Unity renders here -->
+  <canvas id="unity-canvas" tabindex="-1"></canvas>
+
+  <!-- Loading overlay -->
+  <div id="loading-overlay">
+    <div class="star-bg"></div>
+    <div class="border-top"></div>
+    <div class="border-bottom"></div>
+
+    <div class="logo-wrap">
+      <!-- Crescent moon + star (inline SVG, no external deps) -->
+      <svg class="crescent" viewBox="0 0 100 100" fill="none"
+           xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- Moon -->
+        <path d="M50 10 A40 40 0 1 1 10 50 A28 28 0 0 0 50 10Z"
+              fill="#d4af37" opacity="0.95"/>
+        <!-- Star (8-pointed) -->
+        <g transform="translate(68,28) scale(0.65)" fill="#f5e27a">
+          <polygon points="0,-14 3,-5 12,-5 5,1 8,11 0,5 -8,11 -5,1 -12,-5 -3,-5"/>
+        </g>
+      </svg>
+
+      <div class="game-title">Deencraft</div>
+      <div class="tagline">Build · Explore · Discover</div>
+    </div>
+
+    <div class="progress-wrap">
+      <div class="progress-track">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <div class="progress-label" id="progress-label">Loading…</div>
+    </div>
+  </div>
+
+  <!-- Error banner -->
+  <div id="error-banner"></div>
+
+  <script>
+    // ── Unity WebGL loader ────────────────────────────────────────────────
+    var buildUrl     = "Build";
+    var loaderUrl    = buildUrl + "/Deencraft.loader.js";
+    var config = {
+      dataUrl:       buildUrl + "/Deencraft.data.br",
+      frameworkUrl:  buildUrl + "/Deencraft.framework.js.br",
+      codeUrl:       buildUrl + "/Deencraft.wasm.br",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName:   "Deencraft",
+      productName:   "Deencraft",
+      productVersion: "1.0.0",
+      // Brotli compression — headers set in firebase.json
+      // Unity 2022 WebGL uses "Brotli" compressionFormat
+    };
+
+    var progressBar    = document.getElementById("progress-bar");
+    var progressLabel  = document.getElementById("progress-label");
+    var overlay        = document.getElementById("loading-overlay");
+    var errorBanner    = document.getElementById("error-banner");
+    var canvas         = document.getElementById("unity-canvas");
+
+    // Responsive canvas sizing
+    function resizeCanvas() {
+      canvas.style.width  = window.innerWidth  + "px";
+      canvas.style.height = window.innerHeight + "px";
+    }
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+
+    var loadingMessages = [
+      "Cultivating olive groves…",
+      "Raising minarets…",
+      "Filling the Nile…",
+      "Laying stone arches…",
+      "Taming the horses…",
+      "Weaving tile patterns…",
+      "Calling the adhan…",
+      "Welcome to Deencraft!",
+    ];
+
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onerror = function () {
+      showError("Failed to load game files. Please refresh the page.");
+    };
+    script.onload = function () {
+      createUnityInstance(canvas, config, function (progress) {
+        var pct = Math.round(progress * 100);
+        progressBar.style.width = pct + "%";
+        var msgIdx = Math.min(
+          Math.floor(progress * loadingMessages.length),
+          loadingMessages.length - 1
+        );
+        progressLabel.textContent = loadingMessages[msgIdx];
+      }).then(function (unityInstance) {
+        overlay.classList.add("fade-out");
+        setTimeout(function () { overlay.style.display = "none"; }, 700);
+      }).catch(function (message) {
+        showError(message);
+      });
+    };
+    document.body.appendChild(script);
+
+    function showError(msg) {
+      errorBanner.style.display = "block";
+      errorBanner.textContent   = "⚠ " + msg;
+      progressLabel.textContent = "Error — see banner below";
+    }
+  </script>
+</body>
+</html>
