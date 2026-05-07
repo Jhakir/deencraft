@@ -245,6 +245,26 @@ namespace DeenCraft.World
         /// <summary>Marks a chunk as needing a mesh rebuild next frame.</summary>
         public void DirtyChunk(Vector2Int chunkCoord) => _dirtyChunks.Add(chunkCoord);
 
+        /// <summary>
+        /// Changes the world seed and clears all cached chunk data so the new seed
+        /// takes effect on next generation. Call before the player enters the world
+        /// (e.g., from WorldSaveManager.ApplyWorldState). All active views are unloaded.
+        /// </summary>
+        public void SetSeed(int seed)
+        {
+            _worldSeed = seed;
+            _chunkDataCache.Clear();
+            // Return all active views to the pool
+            foreach (var kvp in _activeViews)
+            {
+                kvp.Value.Clear();
+                _pool.Enqueue(kvp.Value);
+            }
+            _activeViews.Clear();
+            _loadQueue.Clear();
+            _lastPlayerChunk = new Vector2Int(int.MinValue, int.MinValue); // force refresh
+        }
+
         // ── Coordinate Utilities ─────────────────────────────────────────────
         /// <summary>Converts a world-space position to chunk coordinates.</summary>
         public static Vector2Int WorldToChunkCoord(Vector3Int worldPos)

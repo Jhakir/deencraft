@@ -66,5 +66,30 @@ namespace DeenCraft.Auth.Models
             !string.IsNullOrWhiteSpace(id) &&
             !string.IsNullOrWhiteSpace(childProfileId) &&
             !string.IsNullOrWhiteSpace(worldName);
+
+        // ── Position helpers ──────────────────────────────────────────────
+
+        /// <summary>Encodes a world-space position as a culture-invariant "x,y,z" string.</summary>
+        public static string EncodePosition(float x, float y, float z)
+            => string.Format(System.Globalization.CultureInfo.InvariantCulture,
+                             "{0},{1},{2}", x, y, z);
+
+        /// <summary>
+        /// Decodes a "x,y,z" position string into float components.
+        /// Returns (0, 64, 0) — sea level — on parse failure.
+        /// </summary>
+        public static void DecodePosition(string encoded, out float x, out float y, out float z)
+        {
+            x = 0f; y = 64f; z = 0f;
+            if (string.IsNullOrWhiteSpace(encoded)) return;
+            var parts = encoded.Split(',');
+            if (parts.Length != 3) return;
+
+            var inv = System.Globalization.CultureInfo.InvariantCulture;
+            var style = System.Globalization.NumberStyles.Float;
+            float.TryParse(parts[0], style, inv, out x);
+            float.TryParse(parts[1], style, inv, out y);
+            float.TryParse(parts[2], style, inv, out z);
+        }
     }
 }
