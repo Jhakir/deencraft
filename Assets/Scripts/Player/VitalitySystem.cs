@@ -35,17 +35,7 @@ namespace DeenCraft.Player
             Data.Eat(restore);
         }
 
-        private float GetFoodRestoreAmount(ItemId foodItem)
-        {
-            switch (foodItem)
-            {
-                case ItemId.Bread:   return 5f;
-                case ItemId.Date:    return 3f;
-                case ItemId.Fig:     return 2f;
-                case ItemId.Falafel: return 6f;
-                default:             return 0f;
-            }
-        }
+        private float GetFoodRestoreAmount(ItemId foodItem) => FoodDefinition.HungerRestored(foodItem);
 
         public float Health  => Data.Health;
         public float Hunger  => Data.Hunger;

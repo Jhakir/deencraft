@@ -25,5 +25,15 @@ namespace DeenCraft.World
         Flower     = 17,
         Boat       = 18,
         Thatch     = 19,
+
+        // Phase 6 — Islamic cultural content
+        Minaret    = 20,   // mosque minaret shaft block
+        Dome       = 21,   // mosque dome cap block
+        StoneArch  = 22,   // Palestinian stone arch
+        Crescent   = 23,   // crescent-moon decorative block
+        StarBlock  = 24,   // star decorative block
+        AppleWood  = 25,   // apple tree trunk
+        AppleLeaves = 26,  // apple tree canopy — drops Apple food item
+        WaterSlide = 27,   // fun slide block — gives speed burst to player
     }
 }

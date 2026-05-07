@@ -1,6 +1,8 @@
 // Assets/Scripts/Player/ItemId.cs
-// NOTE: Block-range items (1–19) do NOT have the same integer values as BlockType (1–19).
+// NOTE: Block-range items do NOT have the same integer values as BlockType.
 // Use BlockItemMap.BlockTypeToItemId / ItemIdToBlockType for bidirectional conversion.
+// Ranges: block items 1-34, tools 100-105, currency 110-111, animal drops 120-124,
+//         crafting 200-201, food 300-306.
 
 namespace DeenCraft.Player
 {
@@ -52,12 +54,23 @@ namespace DeenCraft.Player
         Stick  = 200,
         String = 201,
 
+        // Cultural decorative blocks (placeable in world)
+        Minaret    = 28,
+        Dome       = 29,
+        StoneArch  = 30,
+        Crescent   = 31,
+        StarBlock  = 32,
+        AppleWood  = 33,
+        WaterSlide = 34,
+
         // Food items
         Bread   = 300,
         Date    = 301,
         Fig     = 302,
         Falafel = 303,
         Fish    = 304,
+        Olive   = 305,   // harvested from OliveLeaves
+        Apple   = 306,   // harvested from AppleLeaves
     }
 }
 

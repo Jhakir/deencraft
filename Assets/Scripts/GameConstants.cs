@@ -79,6 +79,19 @@ namespace DeenCraft
         public const int   WebGLMemorySizeMB     = 512;
         public const float MaxLoadTimeSeconds    = 10.0f;  // performance target
 
+        // ── Islamic Cultural Content ──────────────────────────────
+        /// <summary>Speed multiplier applied to player while moving on a WaterSlide block.</summary>
+        public const float WaterSlideSpeedMultiplier = 2.5f;
+
+        /// <summary>Fraction of village chunks that also get a mosque (≈2 in 5).</summary>
+        public const float MosqueChancePerVillage    = 0.40f;
+
+        /// <summary>Height of the mosque minaret shaft (not counting dome cap).</summary>
+        public const int   MosqueMinaretHeight       = 8;
+
+        /// <summary>Side length of the mosque footprint (square, in blocks).</summary>
+        public const int   MosqueCourtyard           = 7;
+
         // ── Block IDs ────────────────────────────────────────
         // Keep in sync with BlockType enum in World/BlockType.cs
         public const byte BlockAir      = 0;

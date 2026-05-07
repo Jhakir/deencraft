@@ -27,9 +27,18 @@ namespace DeenCraft.Player
                 case BlockType.Wheat:       return ItemId.Wheat;
                 case BlockType.MudBrick:    return ItemId.MudBrick;
                 case BlockType.PalmWood:    return ItemId.PalmWood;
-                case BlockType.OliveLeaves: return ItemId.OliveLeaf;
+                case BlockType.OliveLeaves: return ItemId.Olive;        // leaves drop Olive food item
                 case BlockType.Flower:      return ItemId.Flower;
                 case BlockType.Thatch:      return ItemId.Thatch;
+                // Phase 6 cultural blocks
+                case BlockType.AppleWood:   return ItemId.AppleWood;
+                case BlockType.AppleLeaves: return ItemId.Apple;        // leaves drop Apple food item
+                case BlockType.Minaret:     return ItemId.Minaret;
+                case BlockType.Dome:        return ItemId.Dome;
+                case BlockType.StoneArch:   return ItemId.StoneArch;
+                case BlockType.Crescent:    return ItemId.Crescent;
+                case BlockType.StarBlock:   return ItemId.StarBlock;
+                case BlockType.WaterSlide:  return ItemId.WaterSlide;
                 // Non-minable blocks
                 case BlockType.Air:
                 case BlockType.Water:
@@ -64,7 +73,16 @@ namespace DeenCraft.Player
                 case ItemId.Flower:      return BlockType.Flower;
                 case ItemId.Wheat:       return BlockType.Wheat;
                 case ItemId.Thatch:      return BlockType.Thatch;
+                // Phase 6 cultural blocks
+                case ItemId.AppleWood:   return BlockType.AppleWood;
+                case ItemId.Minaret:     return BlockType.Minaret;
+                case ItemId.Dome:        return BlockType.Dome;
+                case ItemId.StoneArch:   return BlockType.StoneArch;
+                case ItemId.Crescent:    return BlockType.Crescent;
+                case ItemId.StarBlock:   return BlockType.StarBlock;
+                case ItemId.WaterSlide:  return BlockType.WaterSlide;
                 // Non-placeable items (tools, food, currency, animal drops, etc.)
+                // Note: ItemId.Apple and ItemId.Olive are food — not placeable
                 default:
                     return BlockType.Air;
             }

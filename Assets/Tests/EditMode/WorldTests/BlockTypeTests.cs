@@ -30,8 +30,8 @@ namespace DeenCraft.Tests.EditMode
         }
 
         [Test]
-        public void BlockTypeCount_IsThirteen() =>
-            Assert.AreEqual(13, System.Enum.GetValues(typeof(BlockType)).Length);
+        public void BlockTypeCount_IsTwentyEight() =>
+            Assert.AreEqual(28, System.Enum.GetValues(typeof(BlockType)).Length);
 
         [Test]
         public void SeaLevel_IsPositiveAndBelowMaxHeight() =>

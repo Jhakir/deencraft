@@ -86,6 +86,13 @@ namespace DeenCraft.World
                 case BiomeType.SnowyIsland:
                     PlaceSnowTree(chunk, x, surfY, z, rng);
                     break;
+                case BiomeType.Grassland:
+                    // 50% apple trees, 50% regular trees for variety
+                    if (rng.NextDouble() < 0.5)
+                        PlaceAppleTree(chunk, x, surfY, z, rng);
+                    else
+                        PlaceRegularTree(chunk, x, surfY, z, rng);
+                    break;
                 default:
                     PlaceRegularTree(chunk, x, surfY, z, rng);
                     break;
@@ -128,6 +135,26 @@ namespace DeenCraft.World
                             if (chunk.GetBlock(x + dx, cy, z + dz) == BlockType.Air)
                                 SafeSet(chunk, x + dx, cy, z + dz, BlockType.OliveLeaves);
             }
+        }
+
+        private static void PlaceAppleTree(ChunkData chunk, int x, int surfY, int z, System.Random rng)
+        {
+            int height = rng.Next(3, 6); // 3–5 blocks tall
+            // Trunk
+            for (int y = surfY + 1; y <= surfY + height; y++)
+                SafeSet(chunk, x, y, z, BlockType.AppleWood);
+            // 3×3 canopy at top-1 and top
+            for (int dy = -1; dy <= 0; dy++)
+            {
+                int cy = surfY + height + dy;
+                for (int dx = -1; dx <= 1; dx++)
+                    for (int dz = -1; dz <= 1; dz++)
+                        if (chunk.IsInBounds(x + dx, cy, z + dz))
+                            if (chunk.GetBlock(x + dx, cy, z + dz) == BlockType.Air)
+                                SafeSet(chunk, x + dx, cy, z + dz, BlockType.AppleLeaves);
+            }
+            // Cap 1×1
+            SafeSet(chunk, x, surfY + height + 1, z, BlockType.AppleLeaves);
         }
 
         private static void PlacePalmTree(ChunkData chunk, int x, int surfY, int z, System.Random rng)
@@ -251,6 +278,25 @@ namespace DeenCraft.World
                 if (surfY >= 0)
                     PlaceHouse(chunk, anchorX, surfY, anchorZ);
 
+                // Mosque: placed next to the house in Grassland or OliveGrove village chunks
+                if ((biome == BiomeType.Grassland || biome == BiomeType.OliveGrove) &&
+                    IsMosqueChunk(chunkX, chunkZ, seed))
+                {
+                    int mosqueAnchorX = GameConstants.HouseAnchorX + GameConstants.HouseWidth + 2;
+                    int mosqueAnchorZ = GameConstants.HouseAnchorZ;
+                    // Verify the mosque footprint fits within the chunk
+                    int mosqueMaxX = mosqueAnchorX + GameConstants.MosqueCourtyard - 1;
+                    int mosqueMaxZ = mosqueAnchorZ + GameConstants.MosqueCourtyard - 1;
+                    if (chunk.IsInBounds(mosqueMaxX, GameConstants.SeaLevel, mosqueMaxZ))
+                    {
+                        int mMidX  = mosqueAnchorX + GameConstants.MosqueCourtyard / 2;
+                        int mMidZ  = mosqueAnchorZ + GameConstants.MosqueCourtyard / 2;
+                        int mSurfY = FindSurfaceY(chunk, mMidX, mMidZ);
+                        if (mSurfY >= 0)
+                            PlaceMosque(chunk, mosqueAnchorX, mSurfY, mosqueAnchorZ);
+                    }
+                }
+
                 if (biome == BiomeType.Riverside)
                     PlaceBoat(chunk, chunkX, chunkZ, seed, rng);
             }
@@ -262,6 +308,57 @@ namespace DeenCraft.World
                 chunkX * GameConstants.VillageNoiseScale + seed * 0.001f,
                 chunkZ * GameConstants.VillageNoiseScale);
             return noise > GameConstants.VillageNoiseThreshold;
+        }
+
+        private static bool IsMosqueChunk(int chunkX, int chunkZ, int seed)
+        {
+            // Uses a different noise offset from village check so mosques don't appear in every village.
+            float noise = Mathf.PerlinNoise(
+                chunkX * GameConstants.VillageNoiseScale + seed * 0.003f + 50f,
+                chunkZ * GameConstants.VillageNoiseScale + seed * 0.003f + 50f);
+            return noise > (1f - GameConstants.MosqueChancePerVillage);
+        }
+
+        private static void PlaceMosque(ChunkData chunk, int anchorX, int surfaceY, int anchorZ)
+        {
+            int w     = GameConstants.MosqueCourtyard; // 7
+            int wallH = 4;
+
+            // Mosaic tile floor
+            for (int x = anchorX; x < anchorX + w; x++)
+                for (int z = anchorZ; z < anchorZ + w; z++)
+                    SafeSet(chunk, x, surfaceY, z, BlockType.Mosque);
+
+            // MudBrick walls (4 sides, wallH layers tall)
+            for (int y = 1; y <= wallH; y++)
+            {
+                for (int x = anchorX; x < anchorX + w; x++)
+                {
+                    SafeSet(chunk, x, surfaceY + y, anchorZ,           BlockType.MudBrick); // south
+                    SafeSet(chunk, x, surfaceY + y, anchorZ + w - 1,   BlockType.MudBrick); // north
+                }
+                for (int z = anchorZ; z < anchorZ + w; z++)
+                {
+                    SafeSet(chunk, anchorX,           surfaceY + y, z, BlockType.MudBrick); // west
+                    SafeSet(chunk, anchorX + w - 1,   surfaceY + y, z, BlockType.MudBrick); // east
+                }
+            }
+
+            // Dome cap on roof centre
+            int midX = anchorX + w / 2;
+            int midZ = anchorZ + w / 2;
+            SafeSet(chunk, midX, surfaceY + wallH + 1, midZ, BlockType.Dome);
+
+            // Minaret: far corner, MosqueMinaretHeight blocks tall topped with Dome
+            int minaretX = anchorX + w - 1;
+            int minaretZ = anchorZ + w - 1;
+            for (int y = 1; y <= GameConstants.MosqueMinaretHeight; y++)
+                SafeSet(chunk, minaretX, surfaceY + y, minaretZ, BlockType.Minaret);
+            SafeSet(chunk, minaretX, surfaceY + GameConstants.MosqueMinaretHeight + 1, minaretZ, BlockType.Dome);
+
+            // Door: opening in south wall, centre column, y+1 and y+2
+            SafeSet(chunk, midX, surfaceY + 1, anchorZ, BlockType.Air);
+            SafeSet(chunk, midX, surfaceY + 2, anchorZ, BlockType.Air);
         }
 
         private static void PlaceHouse(ChunkData chunk, int anchorX, int surfaceY, int anchorZ)
