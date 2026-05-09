@@ -33,6 +33,8 @@ namespace DeenCraft.World
             mesh.vertices  = data.Vertices;
             mesh.triangles = data.Triangles;
             mesh.uv        = data.UVs;
+            if (data.Colors != null && data.Colors.Length == data.Vertices.Length)
+                mesh.colors32 = data.Colors;
             mesh.RecalculateNormals();
             _meshFilter.sharedMesh = mesh;
         }

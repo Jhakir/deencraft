@@ -13,12 +13,46 @@ namespace DeenCraft.World
     {
         private const int TotalBlockTypes = 28; // must match BlockType enum count
 
+        // One colour per BlockType index — matches GenerateBlockAtlas colours
+        private static readonly Color32[] BlockColours = new Color32[TotalBlockTypes]
+        {
+            new Color32(0,   0,   0,   0),   // 0  Air
+            new Color32( 93, 138,  60, 255),  // 1  Grass
+            new Color32(139,  94,  60, 255),  // 2  Dirt
+            new Color32(136, 136, 136, 255),  // 3  Stone
+            new Color32(194, 178, 128, 255),  // 4  Sand
+            new Color32(238, 238, 255, 255),  // 5  Snow
+            new Color32( 58, 107, 200, 255),  // 6  Water
+            new Color32(139,  99,  64, 255),  // 7  Wood
+            new Color32( 74, 122,  40, 255),  // 8  Leaves
+            new Color32(212, 180, 131, 255),  // 9  Mosque
+            new Color32(176, 212, 248, 255),  // 10 Ice
+            new Color32( 90, 138,  64, 255),  // 11 Moss
+            new Color32(212, 168,  64, 255),  // 12 Wheat
+            new Color32( 74, 154,  64, 255),  // 13 Cactus
+            new Color32(176, 120,  72, 255),  // 14 MudBrick
+            new Color32(160, 120,  64, 255),  // 15 PalmWood
+            new Color32(106, 138,  72, 255),  // 16 OliveLeaves
+            new Color32(212,  64, 128, 255),  // 17 Flower
+            new Color32(160,  88,  40, 255),  // 18 Boat
+            new Color32(200, 168,  72, 255),  // 19 Thatch
+            new Color32(232, 212, 168, 255),  // 20 Minaret
+            new Color32( 64, 168, 112, 255),  // 21 Dome
+            new Color32(184, 168, 136, 255),  // 22 StoneArch
+            new Color32(200, 168,   0, 255),  // 23 Crescent
+            new Color32(232, 200,   0, 255),  // 24 StarBlock
+            new Color32(120,  64,  40, 255),  // 25 AppleWood
+            new Color32( 40, 138,  40, 255),  // 26 AppleLeaves
+            new Color32( 64, 184, 216, 255),  // 27 WaterSlide
+        };
+
         // neighbors: [0]=+X, [1]=-X, [2]=+Z, [3]=-Z
         public static MeshData BuildMesh(ChunkData chunk, ChunkData[] neighbors)
         {
-            var verts = new List<Vector3>();
-            var tris  = new List<int>();
-            var uvs   = new List<Vector2>();
+            var verts  = new List<Vector3>();
+            var tris   = new List<int>();
+            var uvs    = new List<Vector2>();
+            var colors = new List<Color32>();
 
             int[] dims = { GameConstants.ChunkWidth, GameConstants.ChunkHeight, GameConstants.ChunkDepth };
 
@@ -104,7 +138,7 @@ namespace DeenCraft.World
                                 var v2 = v0 + new Vector3(du[0] + dv[0], du[1] + dv[1], du[2] + dv[2]);
                                 var v3 = v0 + new Vector3(dv[0], dv[1], dv[2]);
 
-                                AddQuad(verts, tris, uvs, v0, v1, v2, v3,
+                                AddQuad(verts, tris, uvs, colors, v0, v1, v2, v3,
                                     System.Math.Abs(maskVal), isBack);
 
                                 // Zero out used cells
@@ -119,16 +153,22 @@ namespace DeenCraft.World
                 }
             }
 
-            return new MeshData(verts.ToArray(), tris.ToArray(), uvs.ToArray());
+            return new MeshData(verts.ToArray(), tris.ToArray(), uvs.ToArray(), colors.ToArray());
         }
 
         private static void AddQuad(List<Vector3> verts, List<int> tris, List<Vector2> uvs,
+            List<Color32> colors,
             Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3,
             int blockId, bool flip)
         {
             int start = verts.Count;
             verts.Add(v0); verts.Add(v1); verts.Add(v2); verts.Add(v3);
 
+            // Vertex colours (no texture needed)
+            Color32 col = blockId < TotalBlockTypes ? BlockColours[blockId] : new Color32(255, 0, 255, 255);
+            colors.Add(col); colors.Add(col); colors.Add(col); colors.Add(col);
+
+            // Keep UVs so existing atlas materials still work
             float uvY    = (float)blockId / TotalBlockTypes;
             float uvStep = 1f / TotalBlockTypes;
             uvs.Add(new Vector2(0f, uvY));
