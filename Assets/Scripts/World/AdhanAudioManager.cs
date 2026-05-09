@@ -34,6 +34,9 @@ namespace DeenCraft.World
                  "The child selects which clip to use from the in-game settings screen.")]
         [SerializeField] private AudioClip[] _adhanClips = new AudioClip[0];
 
+        // ── Singleton ─────────────────────────────────────────────────────────
+        public static AdhanAudioManager Instance { get; private set; }
+
         // ── State ─────────────────────────────────────────────────────────────
         private AudioSource  _audioSource;
         private bool         _enabled;
@@ -42,6 +45,8 @@ namespace DeenCraft.World
         // ── Unity lifecycle ───────────────────────────────────────────────────
         private void Awake()
         {
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            Instance = this;
             _audioSource           = GetComponent<AudioSource>();
             _audioSource.playOnAwake = false;
             _audioSource.loop        = false;
