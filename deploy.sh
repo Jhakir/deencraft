@@ -6,7 +6,7 @@
 # Requires: Unity (UNITY_PATH), Firebase CLI (npm i -g firebase-tools)
 set -euo pipefail
 
-UNITY_PATH="${UNITY_PATH:-/Applications/Unity/Hub/Editor/2022.3.62f1/Unity.app/Contents/MacOS/Unity}"
+UNITY_PATH="${UNITY_PATH:-/Applications/Unity/Hub/Editor/2022.3.62f3/Unity.app/Contents/MacOS/Unity}"
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
 BUILD_OUTPUT="${PROJECT_DIR}/webgl-build/Build"
 LOG_FILE="${PROJECT_DIR}/Logs/WebGLBuild.log"
@@ -44,3 +44,4 @@ firebase deploy --only hosting --project deencraft-app
 
 echo ""
 echo "✓ Deployed! Visit https://deencraft-app.web.app"
+``
