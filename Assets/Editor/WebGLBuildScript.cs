@@ -40,7 +40,7 @@ namespace DeenCraft.Editor
 
             // .NET Standard 2.1
             PlayerSettings.SetApiCompatibilityLevel(
-                BuildTargetGroup.WebGL, ApiCompatibilityLevel.NET_Standard_2_1);
+                BuildTargetGroup.WebGL, ApiCompatibilityLevel.NET_Standard);
 
             // ── Gather scenes ─────────────────────────────────────────────
             string[] scenes = GetBuildScenes();
