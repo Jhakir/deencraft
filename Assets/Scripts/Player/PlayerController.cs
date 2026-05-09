@@ -27,8 +27,10 @@ namespace DeenCraft.Player
         private const float Gravity        = -20f;
         private const float SwimGravity    = -2f;
         private const float GroundedBump   = -2f;
-        private const float MinPitch       = -80f;
+        private const float MinPitch       = -40f;
         private const float MaxPitch       =  60f;
+        private const float CamSmoothSpeed = 12f;
+        private const float CamArmLength   =  5f;
 
         // ── State ─────────────────────────────────────────────────────────────
         private CharacterController _cc;
@@ -80,14 +82,15 @@ namespace DeenCraft.Player
                 head.GetComponent<Renderer>().material = headMat;
             }
 
-            // Create camera if not assigned
+            // Create camera if not assigned — detached from player to avoid jitter
             if (_cameraTarget == null)
             {
                 var camGo = new GameObject("PlayerCamera");
-                camGo.transform.SetParent(transform);
-                camGo.transform.localPosition = new Vector3(0f, 1.6f, -4f);
+                // NOT parented to player — we move it manually in LateUpdate
+                camGo.transform.position = transform.position + new Vector3(0f, 3f, -CamArmLength);
                 var camComp = camGo.AddComponent<Camera>();
                 camComp.tag = "MainCamera";
+                camComp.farClipPlane = 500f;
                 _cameraTarget = camGo.transform;
             }
         }
@@ -102,6 +105,20 @@ namespace DeenCraft.Player
             HandleMouseLook();
             HandleMovement();
             UpdateAnimationState();
+        }
+
+        private void LateUpdate()
+        {
+            if (_cameraTarget == null) return;
+            // Smooth camera follow — detached from player so no jitter
+            float pitchRad  = _pitch * Mathf.Deg2Rad;
+            float camY      = 1.6f + CamArmLength * Mathf.Sin(pitchRad);
+            float camZ      = -CamArmLength * Mathf.Cos(pitchRad);
+            Vector3 desiredPos = transform.position
+                + Quaternion.Euler(0f, _yaw, 0f) * new Vector3(0f, camY, camZ);
+            _cameraTarget.position = Vector3.Lerp(
+                _cameraTarget.position, desiredPos, CamSmoothSpeed * Time.deltaTime);
+            _cameraTarget.LookAt(transform.position + Vector3.up * 1.4f);
         }
 
         // Poll until a solid surface exists below the player, then enable physics
@@ -119,7 +136,8 @@ namespace DeenCraft.Player
             // Keep teleporting player to the exact surface Y every frame.
             // Once the chunk's MeshCollider is ready, isGrounded becomes true → release.
             int   surfaceY = WorldGenerator.GetSurfaceY(transform.position.x, transform.position.z, _chunkManager.WorldSeed);
-            float targetY  = surfaceY + _cc.height * 0.5f + 0.05f;
+            // +height/2 centres the CC capsule, +skinWidth lifts it off the surface
+            float targetY  = surfaceY + _cc.height * 0.5f + _cc.skinWidth + 0.05f;
 
             _cc.enabled = false;
             transform.position = new Vector3(transform.position.x, targetY, transform.position.z);
@@ -143,16 +161,7 @@ namespace DeenCraft.Player
 
             transform.rotation = Quaternion.Euler(0f, _yaw, 0f);
 
-            if (_cameraTarget != null)
-            {
-                // Position camera on a pitch-rotated arm behind the player
-                float pitchRad = _pitch * Mathf.Deg2Rad;
-                float armLength = 4f;
-                float camY   = 1.6f + armLength * Mathf.Sin(pitchRad);
-                float camZ   = -armLength * Mathf.Cos(pitchRad);
-                _cameraTarget.localPosition = new Vector3(0f, camY, camZ);
-                _cameraTarget.LookAt(transform.position + Vector3.up * 1.4f);
-            }
+            // Camera rotation driven by _yaw/_pitch; actual movement done in LateUpdate
         }
 
         // ── Movement ─────────────────────────────────────────────────────────
