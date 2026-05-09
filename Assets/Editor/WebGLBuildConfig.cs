@@ -52,7 +52,7 @@ namespace DeenCraft.Editor
             PlayerSettings.WebGL.linkerTarget      = WebGLLinkerTarget.Wasm;
             PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
             PlayerSettings.WebGL.dataCaching       = true;
-            PlayerSettings.WebGL.debugSymbols      = false;
+            PlayerSettings.WebGL.debugSymbolMode   = WebGLDebugSymbolMode.Off;
             PlayerSettings.WebGL.exceptionSupport  = WebGLExceptionSupport.ExplicitlyThrownExceptionsOnly;
 
             // Disable Unity splash screen
