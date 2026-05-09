@@ -24,6 +24,8 @@ namespace DeenCraft.World
         [SerializeField] private Material  _worldMaterial;
         [SerializeField] private Transform _playerTransform;
 
+        public int WorldSeed => _worldSeed;
+
         // ── Internal State ───────────────────────────────────────────────────
         private readonly Dictionary<Vector2Int, ChunkData> _chunkDataCache =
             new Dictionary<Vector2Int, ChunkData>();

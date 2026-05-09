@@ -74,6 +74,12 @@ namespace DeenCraft.World
             FeatureGenerator.Decorate(chunk, chunkX, chunkZ, seed);
         }
 
+        /// <summary>Returns the terrain surface Y at world position (worldX, worldZ) for a given seed.</summary>
+        public static int GetSurfaceY(float worldX, float worldZ, int seed)
+        {
+            return GetSurfaceHeight(worldX, worldZ, seed * 0.17f);
+        }
+
         // ── Private helpers ───────────────────────────────────────────────────
 
         private static int GetSurfaceHeight(float worldX, float worldZ, float seedOffset)

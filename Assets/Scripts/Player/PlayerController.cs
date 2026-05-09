@@ -83,22 +83,23 @@ namespace DeenCraft.Player
         {
             _spawnCheckTimer += Time.deltaTime;
 
-            // Raycast downward — if we hit something the chunk collider is ready
-            if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out RaycastHit hit, 300f))
+            // Wait a moment for at least the spawn chunk to begin generating
+            if (_spawnCheckTimer < 0.5f) return;
+
+            if (_chunkManager == null)
             {
-                // Snap player just above the hit surface
-                var pos = transform.position;
-                pos.y = hit.point.y + _cc.height * 0.5f + 0.05f;
-                _cc.enabled = false;
-                transform.position = pos;
-                _cc.enabled = true;
-                _spawnReady = true;
-                return;
+                _chunkManager = FindObjectOfType<ChunkManager>();
+                if (_chunkManager == null) { _spawnReady = true; return; }
             }
 
-            // Safety fallback: give up after 10 s and drop the player anyway
-            if (_spawnCheckTimer > 10f)
-                _spawnReady = true;
+            // Ask WorldGenerator for the exact surface Y — no physics needed
+            int surfaceY = WorldGenerator.GetSurfaceY(transform.position.x, transform.position.z, _chunkManager.WorldSeed);
+            float spawnY = surfaceY + _cc.height * 0.5f + 0.1f;
+
+            _cc.enabled = false;
+            transform.position = new Vector3(transform.position.x, spawnY, transform.position.z);
+            _cc.enabled = true;
+            _spawnReady = true;
         }
 
         // ── Mouse Look ───────────────────────────────────────────────────────
