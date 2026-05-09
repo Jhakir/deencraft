@@ -38,6 +38,10 @@ namespace DeenCraft.Player
         private float _pitch;
         private float _verticalVelocity;
 
+        // Spawn protection: freeze player until the chunk underneath has loaded
+        private bool  _spawnReady;
+        private float _spawnCheckTimer;
+
         public bool IsMoving    { get; private set; }
         public bool IsSprinting { get; private set; }
         public bool IsJumping   { get; private set; }
@@ -64,9 +68,37 @@ namespace DeenCraft.Player
 
         private void Update()
         {
+            if (!_spawnReady)
+            {
+                WaitForSpawnGround();
+                return;
+            }
             HandleMouseLook();
             HandleMovement();
             UpdateAnimationState();
+        }
+
+        // Poll until a solid surface exists below the player, then enable physics
+        private void WaitForSpawnGround()
+        {
+            _spawnCheckTimer += Time.deltaTime;
+
+            // Raycast downward — if we hit something the chunk collider is ready
+            if (Physics.Raycast(transform.position + Vector3.up, Vector3.down, out RaycastHit hit, 300f))
+            {
+                // Snap player just above the hit surface
+                var pos = transform.position;
+                pos.y = hit.point.y + _cc.height * 0.5f + 0.05f;
+                _cc.enabled = false;
+                transform.position = pos;
+                _cc.enabled = true;
+                _spawnReady = true;
+                return;
+            }
+
+            // Safety fallback: give up after 10 s and drop the player anyway
+            if (_spawnCheckTimer > 10f)
+                _spawnReady = true;
         }
 
         // ── Mouse Look ───────────────────────────────────────────────────────
