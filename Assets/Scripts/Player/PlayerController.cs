@@ -54,6 +54,32 @@ namespace DeenCraft.Player
             _cc           = GetComponent<CharacterController>();
             _chunkManager = FindObjectOfType<ChunkManager>();
 
+            // Create a visible body (capsule) if none exists
+            if (transform.Find("PlayerBody") == null)
+            {
+                // Body (torso+legs)
+                var body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                body.name = "PlayerBody";
+                body.transform.SetParent(transform);
+                body.transform.localPosition = new Vector3(0f, 0f, 0f);
+                body.transform.localScale    = new Vector3(0.8f, 1f, 0.8f);
+                Destroy(body.GetComponent<CapsuleCollider>()); // CC handles collision
+                var mat = new Material(Shader.Find("Standard"));
+                mat.color = new Color(0.4f, 0.6f, 1f); // light blue
+                body.GetComponent<Renderer>().material = mat;
+
+                // Head
+                var head = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                head.name = "PlayerHead";
+                head.transform.SetParent(transform);
+                head.transform.localPosition = new Vector3(0f, 1.2f, 0f);
+                head.transform.localScale    = new Vector3(0.7f, 0.7f, 0.7f);
+                Destroy(head.GetComponent<SphereCollider>());
+                var headMat = new Material(Shader.Find("Standard"));
+                headMat.color = new Color(1f, 0.85f, 0.7f); // skin tone
+                head.GetComponent<Renderer>().material = headMat;
+            }
+
             // Create camera if not assigned
             if (_cameraTarget == null)
             {
