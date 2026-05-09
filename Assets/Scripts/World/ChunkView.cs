@@ -39,14 +39,18 @@ namespace DeenCraft.World
             if (data.Colors != null && data.Colors.Length == data.Vertices.Length)
                 mesh.colors32 = data.Colors;
             mesh.RecalculateNormals();
-            _meshFilter.sharedMesh  = mesh;
-            _meshCollider.sharedMesh = mesh; // player can stand on terrain
+            _meshFilter.sharedMesh = mesh;
+            // Only assign collider when mesh has geometry (avoids Unity warning on empty mesh)
+            if (mesh.vertexCount > 0)
+                _meshCollider.sharedMesh = mesh;
         }
 
         public void Clear()
         {
             if (_meshFilter != null && _meshFilter.sharedMesh != null)
                 _meshFilter.sharedMesh.Clear();
+            if (_meshCollider != null)
+                _meshCollider.sharedMesh = null;
             gameObject.SetActive(false);
         }
     }
