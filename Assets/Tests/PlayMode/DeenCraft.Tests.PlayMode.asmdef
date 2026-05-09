@@ -5,7 +5,8 @@
         "UnityEngine.TestRunner",
         "DeenCraft.Auth",
         "DeenCraft.World",
-        "DeenCraft.Player"
+        "DeenCraft.Player",
+        "DeenCraft.Session"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

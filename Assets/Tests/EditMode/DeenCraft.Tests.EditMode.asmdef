@@ -8,6 +8,7 @@
         "DeenCraft.Auth",
         "DeenCraft.World",
         "DeenCraft.Player",
+        "DeenCraft.Session",
         "DeenCraft.Crafting",
         "DeenCraft.Animals",
         "DeenCraft.Villager"

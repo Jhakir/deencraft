@@ -1,12 +1,11 @@
 {
-    "name": "DeenCraft.UI",
-    "rootNamespace": "DeenCraft.UI",
+    "name": "DeenCraft.Session",
+    "rootNamespace": "DeenCraft.Session",
     "references": [
         "DeenCraft.Core",
         "DeenCraft.Auth",
         "DeenCraft.Player",
-        "DeenCraft.World",
-        "DeenCraft.Session"
+        "DeenCraft.World"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
