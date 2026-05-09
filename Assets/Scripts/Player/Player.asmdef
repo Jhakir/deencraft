@@ -3,6 +3,7 @@
     "rootNamespace": "DeenCraft.Player",
     "references": [
         "DeenCraft.Core",
+        "DeenCraft.Auth",
         "DeenCraft.World"
     ],
     "includePlatforms": [],
