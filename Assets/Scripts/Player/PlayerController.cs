@@ -82,8 +82,6 @@ namespace DeenCraft.Player
         private void WaitForSpawnGround()
         {
             _spawnCheckTimer += Time.deltaTime;
-
-            // Wait a moment for at least the spawn chunk to begin generating
             if (_spawnCheckTimer < 0.5f) return;
 
             if (_chunkManager == null)
@@ -92,14 +90,22 @@ namespace DeenCraft.Player
                 if (_chunkManager == null) { _spawnReady = true; return; }
             }
 
-            // Ask WorldGenerator for the exact surface Y — no physics needed
-            int surfaceY = WorldGenerator.GetSurfaceY(transform.position.x, transform.position.z, _chunkManager.WorldSeed);
-            float spawnY = surfaceY + _cc.height * 0.5f + 0.1f;
+            // Keep teleporting player to the exact surface Y every frame.
+            // Once the chunk's MeshCollider is ready, isGrounded becomes true → release.
+            int   surfaceY = WorldGenerator.GetSurfaceY(transform.position.x, transform.position.z, _chunkManager.WorldSeed);
+            float targetY  = surfaceY + _cc.height * 0.5f + 0.05f;
 
             _cc.enabled = false;
-            transform.position = new Vector3(transform.position.x, spawnY, transform.position.z);
+            transform.position = new Vector3(transform.position.x, targetY, transform.position.z);
             _cc.enabled = true;
-            _spawnReady = true;
+            _verticalVelocity = 0f;
+
+            if (_cc.isGrounded)
+                _spawnReady = true;
+
+            // Safety: give up after 15 s regardless
+            if (_spawnCheckTimer > 15f)
+                _spawnReady = true;
         }
 
         // ── Mouse Look ───────────────────────────────────────────────────────
