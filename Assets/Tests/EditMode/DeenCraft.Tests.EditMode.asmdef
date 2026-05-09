@@ -9,6 +9,7 @@
         "DeenCraft.World",
         "DeenCraft.Player",
         "DeenCraft.Session",
+        "DeenCraft.UI",
         "DeenCraft.Crafting",
         "DeenCraft.Animals",
         "DeenCraft.Villager"
