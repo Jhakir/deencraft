@@ -93,7 +93,7 @@ namespace DeenCraft.UI
                 var btn = go.GetComponent<Button>();
                 var lbl = go.GetComponentInChildren<Text>();
                 if (lbl != null)
-                    lbl.text = $"{save.worldName}\n<size=10>{save.lastSaved}</size>";
+                    lbl.text = $"{save.worldName}\n<size=10>{save.savedAt}</size>";
 
                 var capturedId = save.id;
                 btn.onClick.AddListener(() => OnSaveSelected(capturedId));
