@@ -119,7 +119,8 @@ namespace DeenCraft.Player
             _cameraTarget.LookAt(transform.position + Vector3.up * 1.4f);
         }
 
-        // Snap player to terrain surface once, then release into normal physics.
+        // Hold player at terrain surface Y every frame until the chunk MeshCollider loads,
+        // then release into normal physics. Camera is detached so per-frame Y lock = no shake.
         private void WaitForSpawnGround()
         {
             _spawnCheckTimer += Time.deltaTime;
@@ -131,16 +132,23 @@ namespace DeenCraft.Player
                 if (_chunkManager == null) { _spawnReady = true; return; }
             }
 
-            // Snap once: place player 2 units above the terrain surface and release.
-            // CharacterController + gravity will handle the gentle landing.
             int   surfaceY = WorldGenerator.GetSurfaceY(transform.position.x, transform.position.z, _chunkManager.WorldSeed);
-            float targetY  = surfaceY + _cc.height * 0.5f + 2f;
+            float targetY  = surfaceY + _cc.height * 0.5f + 0.1f;
 
+            // Re-teleport every frame to hold position while chunks are still loading.
             _cc.enabled = false;
             transform.position = new Vector3(transform.position.x, targetY, transform.position.z);
             _cc.enabled = true;
             _verticalVelocity = 0f;
-            _spawnReady = true;  // Release immediately — no more per-frame teleporting
+
+            // Release only once a real MeshCollider exists beneath us.
+            float checkDist = _cc.height * 0.5f + 1f;
+            if (Physics.Raycast(transform.position, Vector3.down, checkDist))
+                _spawnReady = true;
+
+            // Safety: release after 15 s regardless so the game is never stuck.
+            if (_spawnCheckTimer > 15f)
+                _spawnReady = true;
         }
 
         // ── Mouse Look ───────────────────────────────────────────────────────
