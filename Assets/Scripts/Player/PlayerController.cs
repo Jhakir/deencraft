@@ -110,18 +110,16 @@ namespace DeenCraft.Player
         private void LateUpdate()
         {
             if (_cameraTarget == null) return;
-            // Smooth camera follow — detached from player so no jitter
+            // Direct positioning — no Lerp, eliminates camera-chasing jitter
             float pitchRad  = _pitch * Mathf.Deg2Rad;
             float camY      = 1.6f + CamArmLength * Mathf.Sin(pitchRad);
             float camZ      = -CamArmLength * Mathf.Cos(pitchRad);
-            Vector3 desiredPos = transform.position
+            _cameraTarget.position = transform.position
                 + Quaternion.Euler(0f, _yaw, 0f) * new Vector3(0f, camY, camZ);
-            _cameraTarget.position = Vector3.Lerp(
-                _cameraTarget.position, desiredPos, CamSmoothSpeed * Time.deltaTime);
             _cameraTarget.LookAt(transform.position + Vector3.up * 1.4f);
         }
 
-        // Poll until a solid surface exists below the player, then enable physics
+        // Snap player to terrain surface once, then release into normal physics.
         private void WaitForSpawnGround()
         {
             _spawnCheckTimer += Time.deltaTime;
@@ -133,23 +131,16 @@ namespace DeenCraft.Player
                 if (_chunkManager == null) { _spawnReady = true; return; }
             }
 
-            // Keep teleporting player to the exact surface Y every frame.
-            // Once the chunk's MeshCollider is ready, isGrounded becomes true → release.
+            // Snap once: place player 2 units above the terrain surface and release.
+            // CharacterController + gravity will handle the gentle landing.
             int   surfaceY = WorldGenerator.GetSurfaceY(transform.position.x, transform.position.z, _chunkManager.WorldSeed);
-            // +height/2 centres the CC capsule, +skinWidth lifts it off the surface
-            float targetY  = surfaceY + _cc.height * 0.5f + _cc.skinWidth + 0.05f;
+            float targetY  = surfaceY + _cc.height * 0.5f + 2f;
 
             _cc.enabled = false;
             transform.position = new Vector3(transform.position.x, targetY, transform.position.z);
             _cc.enabled = true;
             _verticalVelocity = 0f;
-
-            if (_cc.isGrounded)
-                _spawnReady = true;
-
-            // Safety: give up after 15 s regardless
-            if (_spawnCheckTimer > 15f)
-                _spawnReady = true;
+            _spawnReady = true;  // Release immediately — no more per-frame teleporting
         }
 
         // ── Mouse Look ───────────────────────────────────────────────────────
