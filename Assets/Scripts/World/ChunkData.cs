@@ -13,6 +13,7 @@ namespace DeenCraft.World
         private readonly byte[] _blocks;
 
         public int BlockCount => _blocks.Length;
+        public int? HouseFloorY { get; internal set; }
 
         public ChunkData()
         {

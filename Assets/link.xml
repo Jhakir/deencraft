@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Assets/link.xml — IL2CPP managed/engine code stripping preservation.
+
+  WebGL builds strip engine modules that are never referenced explicitly from
+  managed code. Deencraft creates colliders implicitly via
+  GameObject.CreatePrimitive and relies on Physics.Raycast for block
+  interaction, so the physics module must be preserved or the runtime logs:
+      "Can't add component because class 'CapsuleCollider' doesn't exist!"
+  and raycast-based mining/placing silently stops working.
+-->
+<linker>
+  <assembly fullname="UnityEngine.PhysicsModule" preserve="all"/>
+  <assembly fullname="UnityEngine.TerrainPhysicsModule" preserve="all"/>
+  <assembly fullname="UnityEngine.UI" preserve="all"/>
+  <assembly fullname="UnityEngine.UIModule" preserve="all"/>
+  <assembly fullname="UnityEngine.IMGUIModule" preserve="all"/>
+  <assembly fullname="UnityEngine.TextRenderingModule" preserve="all"/>
+  <assembly fullname="UnityEngine.AudioModule" preserve="all"/>
+</linker>

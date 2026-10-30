@@ -14,6 +14,9 @@ namespace DeenCraft.World
         // ── Entry point ───────────────────────────────────────────────────────
 
         public static void Decorate(ChunkData chunk, int chunkX, int chunkZ, int seed)
+            => Decorate(chunk, chunkX, chunkZ, seed, true);
+
+        public static void Decorate(ChunkData chunk, int chunkX, int chunkZ, int seed, bool allowStructures)
         {
             var rng = new System.Random(HashSeed(chunkX, chunkZ, seed));
 
@@ -24,7 +27,7 @@ namespace DeenCraft.World
 
             PlantTrees(chunk, chunkX, chunkZ, seed, biome, rng);
             PlantVegetation(chunk, chunkX, chunkZ, seed, biome, rng);
-            PlaceStructures(chunk, chunkX, chunkZ, seed, biome, rng);
+            if (allowStructures) PlaceStructures(chunk, chunkX, chunkZ, seed, biome, rng);
         }
 
         // ── Trees ─────────────────────────────────────────────────────────────
@@ -267,35 +270,27 @@ namespace DeenCraft.World
                                    biome == BiomeType.OliveGrove ||
                                    biome == BiomeType.Riverside;
 
-            if (villageEligible && IsVillageChunk(chunkX, chunkZ, seed))
+            bool startingHouse = chunkX == 0 && chunkZ == 0;
+            if (startingHouse || villageEligible && IsVillageChunk(chunkX, chunkZ, seed))
             {
                 int anchorX = GameConstants.HouseAnchorX;
                 int anchorZ = GameConstants.HouseAnchorZ;
-                int midX    = anchorX + GameConstants.HouseWidth  / 2;
-                int midZ    = anchorZ + GameConstants.HouseDepth  / 2;
-                int surfY   = FindSurfaceY(chunk, midX, midZ);
+                int surfY = -1;
+                for (int x = anchorX; x < anchorX + GameConstants.HouseWidth; x++)
+                for (int z = anchorZ; z < anchorZ + GameConstants.HouseDepth; z++)
+                {
+                    for (int y = GameConstants.ChunkHeight - GameConstants.HouseHeight - 2; y >= 0; y--)
+                    {
+                        BlockType block = chunk.GetBlock(x, y, z);
+                        if (block != BlockType.Grass && block != BlockType.Dirt && block != BlockType.Stone
+                            && block != BlockType.Sand && block != BlockType.Snow) continue;
+                        surfY = Mathf.Max(surfY, y);
+                        break;
+                    }
+                }
 
                 if (surfY >= 0)
                     PlaceHouse(chunk, anchorX, surfY, anchorZ);
-
-                // Mosque: placed next to the house in Grassland or OliveGrove village chunks
-                if ((biome == BiomeType.Grassland || biome == BiomeType.OliveGrove) &&
-                    IsMosqueChunk(chunkX, chunkZ, seed))
-                {
-                    int mosqueAnchorX = GameConstants.HouseAnchorX + GameConstants.HouseWidth + 2;
-                    int mosqueAnchorZ = GameConstants.HouseAnchorZ;
-                    // Verify the mosque footprint fits within the chunk
-                    int mosqueMaxX = mosqueAnchorX + GameConstants.MosqueCourtyard - 1;
-                    int mosqueMaxZ = mosqueAnchorZ + GameConstants.MosqueCourtyard - 1;
-                    if (chunk.IsInBounds(mosqueMaxX, GameConstants.SeaLevel, mosqueMaxZ))
-                    {
-                        int mMidX  = mosqueAnchorX + GameConstants.MosqueCourtyard / 2;
-                        int mMidZ  = mosqueAnchorZ + GameConstants.MosqueCourtyard / 2;
-                        int mSurfY = FindSurfaceY(chunk, mMidX, mMidZ);
-                        if (mSurfY >= 0)
-                            PlaceMosque(chunk, mosqueAnchorX, mSurfY, mosqueAnchorZ);
-                    }
-                }
 
                 if (biome == BiomeType.Riverside)
                     PlaceBoat(chunk, chunkX, chunkZ, seed, rng);
@@ -356,16 +351,30 @@ namespace DeenCraft.World
                 SafeSet(chunk, minaretX, surfaceY + y, minaretZ, BlockType.Minaret);
             SafeSet(chunk, minaretX, surfaceY + GameConstants.MosqueMinaretHeight + 1, minaretZ, BlockType.Dome);
 
-            // Door: opening in south wall, centre column, y+1 and y+2
-            SafeSet(chunk, midX, surfaceY + 1, anchorZ, BlockType.Air);
-            SafeSet(chunk, midX, surfaceY + 2, anchorZ, BlockType.Air);
+            for (int y = 1; y <= GameConstants.DoorwayHeight; y++)
+                SafeSet(chunk, midX, surfaceY + y, anchorZ, BlockType.Air);
         }
 
         private static void PlaceHouse(ChunkData chunk, int anchorX, int surfaceY, int anchorZ)
         {
-            int w = GameConstants.HouseWidth;   // 7
+            int w = GameConstants.HouseWidth;
             int d = GameConstants.HouseDepth;   // 5
             int h = GameConstants.HouseHeight;  // 4
+
+            chunk.HouseFloorY = surfaceY;
+            for (int x = anchorX; x < anchorX + w; x++)
+            for (int z = anchorZ; z < anchorZ + d; z++)
+            {
+                for (int y = 1; y <= h; y++)
+                    SafeSet(chunk, x, surfaceY + y, z, BlockType.Air);
+                for (int y = surfaceY - 1; y >= 0; y--)
+                {
+                    BlockType block = chunk.GetBlock(x, y, z);
+                    if (block != BlockType.Air && block != BlockType.Water
+                        && block != BlockType.Flower && block != BlockType.Wheat) break;
+                    SafeSet(chunk, x, y, z, BlockType.MudBrick);
+                }
+            }
 
             // Floor
             for (int x = anchorX; x < anchorX + w; x++)
@@ -387,10 +396,9 @@ namespace DeenCraft.World
                 }
             }
 
-            // Door: Air in south wall, centre column, y+1 and y+2
             int doorX = anchorX + w / 2;
-            SafeSet(chunk, doorX, surfaceY + 1, anchorZ, BlockType.Air);
-            SafeSet(chunk, doorX, surfaceY + 2, anchorZ, BlockType.Air);
+            for (int y = 1; y <= GameConstants.DoorwayHeight; y++)
+                SafeSet(chunk, doorX, surfaceY + y, anchorZ, BlockType.Air);
 
             // Window: Air in east wall at y+2, middle Z
             int winZ = anchorZ + d / 2;
@@ -401,9 +409,23 @@ namespace DeenCraft.World
                 for (int z = anchorZ; z < anchorZ + d; z++)
                     SafeSet(chunk, x, surfaceY + h + 1, z, BlockType.Thatch);
 
-            // Interior shelf: Wood along north interior wall at y+1
-            for (int x = anchorX + 1; x < anchorX + w - 1; x++)
-                SafeSet(chunk, x, surfaceY + 1, anchorZ + d - 2, BlockType.Wood);
+            // A level front landing and one-block steps keep the entrance accessible on hills.
+            for (int step = 1; step <= anchorZ; step++)
+            {
+                int z = anchorZ - step;
+                int top = surfaceY - Mathf.Max(0, step - 2);
+                for (int x = doorX - 1; x <= doorX + 1; x++)
+                {
+                    for (int y = top + 1; y <= surfaceY + h; y++)
+                        SafeSet(chunk, x, y, z, BlockType.Air);
+                    for (int y = top; y >= 0; y--)
+                    {
+                        BlockType block = chunk.GetBlock(x, y, z);
+                        if (y != top && block != BlockType.Air && block != BlockType.Water) break;
+                        SafeSet(chunk, x, y, z, BlockType.MudBrick);
+                    }
+                }
+            }
         }
 
         // ── Oasis ─────────────────────────────────────────────────────────────

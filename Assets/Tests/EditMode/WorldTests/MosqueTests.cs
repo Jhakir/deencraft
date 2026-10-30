@@ -17,28 +17,17 @@ namespace DeenCraft.Tests.EditMode.WorldTests
         }
 
         [Test]
-        public void Mosque_BlocksAppear_InSomeVillageChunk()
+        public void Mosque_BlocksAppear_InEveryReservedDistrictComplex()
         {
-            // Search a 30×30 grid for any Grassland/OliveGrove chunk that contains Minaret/Dome.
-            int seed = 42;
-            for (int cx = 0; cx < 30; cx++)
+            var district = MasjidDistrictPlanner.Create(42, bounds => false);
+            foreach (MasjidComplexLayout complex in district.Complexes)
             {
-                for (int cz = 0; cz < 30; cz++)
-                {
-                    int midX = cx * GameConstants.ChunkWidth  + GameConstants.ChunkWidth  / 2;
-                    int midZ = cz * GameConstants.ChunkDepth + GameConstants.ChunkDepth / 2;
-                    var biome = BiomeSystem.GetBiome(midX, midZ, seed);
-                    if (biome != BiomeType.Grassland && biome != BiomeType.OliveGrove) continue;
-
-                    var chunk = new ChunkData();
-                    WorldGenerator.Generate(chunk, cx, cz, seed);
-
-                    if (ChunkContains(chunk, BlockType.Minaret) ||
-                        ChunkContains(chunk, BlockType.Dome))
-                        return; // PASS
-                }
+                var coord = ChunkManager.WorldToChunkCoord(complex.Bounds.min +
+                    new UnityEngine.Vector3Int(5, 0, 5));
+                var chunk = new ChunkData();
+                WorldGenerator.Generate(chunk, coord.x, coord.y, 42, district);
+                Assert.That(ChunkContains(chunk, BlockType.Minaret), Is.True, complex.Style.ToString());
             }
-            Assert.Fail("No Minaret or Dome block found in any Grassland/OliveGrove chunk across a 30×30 grid (seed 42).");
         }
 
         [Test]

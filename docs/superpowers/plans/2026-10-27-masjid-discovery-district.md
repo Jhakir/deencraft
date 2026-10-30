@@ -8,6 +8,14 @@
 
 **Tech Stack:** Unity 2022.3.62f3, C#, existing World/Player/Villager/UI/Auth assemblies, NUnit EditMode and PlayMode tests, existing WebGL build and local hosting.
 
+**Execution record (2026-10-30):** The exploration implementation and scene wiring
+are present on `feature/masjid-discovery-district`. Verification: 108 focused
+EditMode, 14 PlayMode, and 6 hosting tests passed; the final WebGL build succeeded.
+An in-district 60-second Unity-frame sample measured 58.4 FPS at 1604x924 on
+Apple M2 / Chrome 150. Browser pointer-lock restrictions limit manual interaction
+sign-off; see [the detailed status and limitations](../../phase_9_status.md#verification-completed--2026-10-30).
+Existing shared workspace changes remain preserved; no merge or push was performed.
+
 ---
 
 ## Approved specification and boundaries

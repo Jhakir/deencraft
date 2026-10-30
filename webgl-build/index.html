@@ -173,18 +173,18 @@
 
   <script>
     // ── Unity WebGL loader ────────────────────────────────────────────────
-    var buildUrl     = "Build";
-    var loaderUrl    = buildUrl + "/Deencraft.loader.js";
+    var buildUrl     = "loki/Build";
+    var buildVersion = "639289828049389760";
+    var loaderUrl    = buildUrl + "/loki.loader.js" + "?v=" + buildVersion;
     var config = {
-      dataUrl:       buildUrl + "/Deencraft.data.br",
-      frameworkUrl:  buildUrl + "/Deencraft.framework.js.br",
-      codeUrl:       buildUrl + "/Deencraft.wasm.br",
-      streamingAssetsUrl: "StreamingAssets",
+      dataUrl:       buildUrl + "/loki.data.gz" + "?v=" + buildVersion,
+      frameworkUrl:  buildUrl + "/loki.framework.js.gz" + "?v=" + buildVersion,
+      codeUrl:       buildUrl + "/loki.wasm.gz" + "?v=" + buildVersion,
+      streamingAssetsUrl: "loki/StreamingAssets",
       companyName:   "Deencraft",
       productName:   "Deencraft",
       productVersion: "1.0.0",
-      // Brotli compression — headers set in firebase.json
-      // Unity 2022 WebGL uses "Brotli" compressionFormat
+      // Gzip headers are supplied by serve.py locally and firebase.json in production.
     };
 
     var progressBar    = document.getElementById("progress-bar");

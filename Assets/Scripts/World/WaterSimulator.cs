@@ -86,7 +86,8 @@ namespace DeenCraft.World
 
             if (data.GetBlock(lx, worldPos.y, lz) != BlockType.Air) return false;
 
-            ChunkManager.Instance.SetBlock(worldPos, BlockType.Water);
+            if (ChunkManager.Instance.TrySetBlock(worldPos, BlockType.Water) != BlockEditResult.Success)
+                return false;
 
             if (!_visited.Contains(worldPos))
             {

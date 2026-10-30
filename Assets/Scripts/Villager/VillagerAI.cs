@@ -17,6 +17,7 @@ namespace DeenCraft.Villager
     /// </summary>
     public class VillagerAI : MonoBehaviour, IInteractable
     {
+        public static event System.Action<VillagerAI, GameObject> TradeRequested;
         // ── Constants ─────────────────────────────────────────────────────────
         private const float DetectionRange = 10f;
         private const float TurnSpeed      =  2f;  // Slerp factor per second
@@ -50,9 +51,18 @@ namespace DeenCraft.Villager
         // ── IInteractable ─────────────────────────────────────────────────────
         public void Interact(GameObject interactor)
         {
-            // Phase 5: trade UI is wired in Phase 8.
-            // For now, log so designers can verify the callback fires in-editor.
-            Debug.Log($"[VillagerAI] {_profile?.Name ?? "Villager"} greeted the player.");
+            if (interactor == null || interactor.GetComponent<InventoryHolder>() == null)
+            {
+                Debug.LogWarning("[VillagerAI] Trading requires a player inventory.", this);
+                return;
+            }
+            if (_profile == null) _profile = VillagerProfile.CreateDefault();
+            if (TradeRequested == null)
+            {
+                Debug.LogError("[VillagerAI] No trade menu is listening for interactions.", this);
+                return;
+            }
+            TradeRequested.Invoke(this, interactor);
         }
 
         // ── Public API ────────────────────────────────────────────────────────

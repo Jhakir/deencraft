@@ -26,6 +26,8 @@ namespace DeenCraft
         public const float PlayerSprintSpeed  = 8.0f;
         public const float PlayerJumpForce    = 7.0f;
         public const float PlayerSwimSpeed    = 3.0f;
+        public const float PlayerFlySpeed     = 8.0f;
+        public const float PlayerFlyBoostSpeed = 12.0f;
         public const float PlayerReach        = 5.0f;  // block-interaction range in world units
         public const float PlayerHeight       = 1.8f;
         public const float PlayerWidth        = 0.6f;
@@ -52,7 +54,7 @@ namespace DeenCraft
         public const int CraftingGridSize = 3;  // 3×3 crafting table grid
 
         // ── Villager Trade ───────────────────────────────────
-        public const int MaxTradesPerVillager = 8;
+        public const int MaxTradesPerVillager = 12;
 
         // ── UI ───────────────────────────────────────────────
         public const float UIFadeSpeed = 3.0f;  // alpha units per second
@@ -136,11 +138,12 @@ namespace DeenCraft
         public const int   RiverXMin             = 6;
         public const int   RiverXMax             = 10;
         public const int   MaxTreesPerChunk      = 3;
-        public const int   HouseWidth            = 7;
+        public const int   HouseWidth            = 9;
         public const int   HouseDepth            = 5;
         public const int   HouseHeight           = 4;
         public const int   HouseAnchorX          = 4;
         public const int   HouseAnchorZ          = 4;
+        public const int   DoorwayHeight         = 3;
 
         // ── Day / Night Cycle ─────────────────────────────────
         /// <summary>How many real seconds equal one full in-game day.</summary>

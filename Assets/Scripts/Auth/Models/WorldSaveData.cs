@@ -36,6 +36,11 @@ namespace DeenCraft.Auth.Models
         /// <summary>Number of in-game days elapsed.</summary>
         public int dayCount;
 
+        public int masjidDistrictVersion;
+        public int masjidDistrictOriginX;
+        public int masjidDistrictOriginZ;
+        public int masjidDistrictFloorY;
+
         /// <summary>
         /// Map of inventory slot index → item type ID and count ("typeId:count").
         /// Kept here as a summary so the HUD can restore quickly.

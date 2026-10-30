@@ -8,7 +8,7 @@ set -euo pipefail
 
 UNITY_PATH="${UNITY_PATH:-/Applications/Unity/Hub/Editor/2022.3.62f3/Unity.app/Contents/MacOS/Unity}"
 PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)"
-BUILD_OUTPUT="${PROJECT_DIR}/webgl-build/Build"
+BUILD_OUTPUT="${PROJECT_DIR}/webgl-build/loki/Build"
 LOG_FILE="${PROJECT_DIR}/Logs/WebGLBuild.log"
 
 echo "╔══════════════════════════════════════╗"
@@ -34,7 +34,7 @@ if [[ "${1:-}" != "--deploy-only" ]]; then
     echo "  Check Logs/WebGLBuild.log for errors."
     exit 1
   fi
-  echo "✓ Build complete → webgl-build/Build"
+  echo "✓ Build complete → webgl-build/loki/Build"
 fi
 
 # ── Step 2: Firebase deploy ───────────────────────────────────────────────────

@@ -133,7 +133,11 @@ namespace DeenCraft.World
         {
             // Apply seed to chunk generation
             if (_chunkManager != null)
-                _chunkManager.SetSeed(save.seed);
+            {
+                _chunkManager.ConfigureWorld(save.seed, save.masjidDistrictVersion,
+                    new Vector2Int(save.masjidDistrictOriginX, save.masjidDistrictOriginZ), save.masjidDistrictFloorY);
+                CaptureDistrict(save);
+            }
 
             // Restore player position
             if (_playerController != null)
@@ -155,6 +159,7 @@ namespace DeenCraft.World
         private void CaptureCurrentState()
         {
             if (ActiveSave == null) return;
+            CaptureDistrict(ActiveSave);
 
             if (_playerController != null)
             {
@@ -164,6 +169,16 @@ namespace DeenCraft.World
 
             ActiveSave.savedAt = DateTime.UtcNow.ToString("o");
             ActiveSave.dayCount++;
+        }
+
+        private void CaptureDistrict(WorldSaveData save)
+        {
+            if (_chunkManager == null || _chunkManager.DistrictLayout == null) return;
+            MasjidDistrictLayout district = _chunkManager.DistrictLayout;
+            save.masjidDistrictVersion = district.Version;
+            save.masjidDistrictOriginX = district.Origin.x;
+            save.masjidDistrictOriginZ = district.Origin.y;
+            save.masjidDistrictFloorY = district.FloorY;
         }
 
         private void NotifyError(string message)

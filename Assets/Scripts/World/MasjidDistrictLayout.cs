@@ -49,8 +49,10 @@ namespace DeenCraft.World
         public BoundsInt Bounds { get; }
         public IReadOnlyList<MasjidComplexLayout> Complexes { get; }
         public float DistanceFromInitialSpawn { get; }
+        public Vector3 ApproachStart { get; }
+        public Vector3 ApproachEnd { get; }
 
-        internal MasjidDistrictLayout(Vector2Int origin, int floorY)
+        internal MasjidDistrictLayout(Vector2Int origin, int floorY, int seed)
         {
             if (floorY < 1 || floorY + MasjidComplexLayout.StructureHeight > GameConstants.ChunkHeight)
                 throw new ArgumentOutOfRangeException(nameof(floorY));
@@ -68,6 +70,8 @@ namespace DeenCraft.World
             float nearestX = Mathf.Clamp(0, Bounds.xMin, Bounds.xMax);
             float nearestZ = Mathf.Clamp(0, Bounds.zMin, Bounds.zMax);
             DistanceFromInitialSpawn = new Vector2(nearestX, nearestZ).magnitude;
+            ApproachStart = new Vector3(0f, WorldGenerator.GetTerrainSurfaceY(0, -4, seed) + 1.03f, -4f);
+            ApproachEnd = new Vector3(nearestX, floorY + 1.03f, nearestZ);
         }
 
         public bool IntersectsChunk(Vector2Int coord)

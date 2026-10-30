@@ -16,6 +16,21 @@ namespace DeenCraft.World
             FeatureGenerator.Decorate(chunk, chunkX, chunkZ, seed);
         }
 
+        public static void Generate(ChunkData chunk, int chunkX, int chunkZ, int seed,
+            MasjidDistrictLayout district)
+        {
+            if (district == null)
+            {
+                Generate(chunk, chunkX, chunkZ, seed);
+                return;
+            }
+            GenerateTerrain(chunk, chunkX, chunkZ, seed);
+            bool reserved = district.IntersectsChunk(new Vector2Int(chunkX, chunkZ));
+            FeatureGenerator.Decorate(chunk, chunkX, chunkZ, seed, !reserved);
+            MasjidStructureGenerator.Apply(chunk, new Vector2Int(chunkX, chunkZ), district);
+            MasjidApproachPath.ClearTerrain(chunk, new Vector2Int(chunkX, chunkZ), district);
+        }
+
         public static void GenerateTerrain(ChunkData chunk, int chunkX, int chunkZ, int seed)
         {
             float seedOffset = seed * 0.17f;

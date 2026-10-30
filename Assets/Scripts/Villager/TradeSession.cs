@@ -27,7 +27,9 @@ namespace DeenCraft.Villager
             if (offer == null || inventory == null)         return false;
             if (offer.RequestedCount <= 0)                  return false; // security: reject zero/negative
             if (offer.OfferedCount   <= 0)                  return false; // security: reject zero/negative
-            return inventory.CountItem(offer.RequestedItem) >= offer.RequestedCount;
+            if (offer.RequestedItem == ItemId.None || offer.OfferedItem == ItemId.None) return false;
+            return inventory.CountItem(offer.RequestedItem) >= offer.RequestedCount
+                && HasRoomAfterPayment(offer, inventory);
         }
 
         /// <summary>
@@ -39,29 +41,19 @@ namespace DeenCraft.Villager
         {
             if (!CanExecute(offer, inventory)) return false;
 
-            // Pre-check: ensure there is room for the offered items before removing
-            // the requested items.  This prevents the player losing items without
-            // receiving the trade goods.
-            if (!HasRoomForItem(offer.OfferedItem, offer.OfferedCount, inventory)) return false;
-
             // Atomically remove then add — order matters: remove first so space
             // freed by identical items (e.g., exchanging one food for another) is
             // counted accurately by AddItem's internal merge logic.
             bool removed = inventory.RemoveItem(offer.RequestedItem, offer.RequestedCount);
             if (!removed)
             {
-                // Should never reach here after CanExecute — but guard anyway.
-                return false;
+                throw new System.InvalidOperationException("Validated trade payment could not be removed.");
             }
 
             int overflow = inventory.AddItem(new ItemStack(offer.OfferedItem, offer.OfferedCount));
             if (overflow > 0)
             {
-                // HasRoomForItem said there was space but AddItem still overflowed
-                // (e.g., a race condition in multiplayer — impossible in v1 single-player
-                // but defended against for correctness).  Roll back by re-adding.
-                inventory.AddItem(new ItemStack(offer.RequestedItem, offer.RequestedCount));
-                return false;
+                throw new System.InvalidOperationException("Validated trade reward exceeded inventory capacity.");
             }
 
             return true;
@@ -70,37 +62,33 @@ namespace DeenCraft.Villager
         // ── Private helpers ───────────────────────────────────────────────────
 
         /// <summary>
-        /// Returns true when the inventory can hold <paramref name="count"/> more
-        /// items of type <paramref name="itemId"/> without any being lost.
+        /// Simulates payment in the same slot order as Inventory.RemoveItem before counting reward space.
         /// </summary>
-        private static bool HasRoomForItem(ItemId itemId, int count, Inventory inventory)
+        private static bool HasRoomAfterPayment(TradeOffer offer, Inventory inventory)
         {
             int available = 0;
+            int paymentRemaining = offer.RequestedCount;
 
-            // Count space in existing stacks of the same type
-            for (int i = 0; i < GameConstants.HotbarSlots; i++)
+            for (int i = 0; i < GameConstants.HotbarSlots + GameConstants.BackpackSlots; i++)
             {
-                var slot = inventory.GetHotbarSlot(i);
-                if (slot.IsEmpty)
+                var slot = i < GameConstants.HotbarSlots
+                    ? inventory.GetHotbarSlot(i)
+                    : inventory.GetBackpackSlot(i - GameConstants.HotbarSlots);
+                int remaining = slot.Count;
+                if (slot.ItemId == offer.RequestedItem && paymentRemaining > 0)
+                {
+                    int removed = System.Math.Min(paymentRemaining, remaining);
+                    paymentRemaining -= removed;
+                    remaining -= removed;
+                }
+                if (slot.IsEmpty || remaining == 0)
                     available += GameConstants.MaxStackSize;
-                else if (slot.ItemId == itemId)
-                    available += GameConstants.MaxStackSize - slot.Count;
+                else if (slot.ItemId == offer.OfferedItem)
+                    available += GameConstants.MaxStackSize - remaining;
 
-                if (available >= count) return true;
+                if (available >= offer.OfferedCount) return true;
             }
-
-            for (int i = 0; i < GameConstants.BackpackSlots; i++)
-            {
-                var slot = inventory.GetBackpackSlot(i);
-                if (slot.IsEmpty)
-                    available += GameConstants.MaxStackSize;
-                else if (slot.ItemId == itemId)
-                    available += GameConstants.MaxStackSize - slot.Count;
-
-                if (available >= count) return true;
-            }
-
-            return available >= count;
+            return false;
         }
     }
 }

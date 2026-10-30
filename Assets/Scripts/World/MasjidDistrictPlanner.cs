@@ -24,9 +24,23 @@ namespace DeenCraft.World
                 for (int z = reserved.zMin; z < reserved.zMax; z++)
                     floor = Mathf.Max(floor, WorldGenerator.GetTerrainSurfaceY(x, z, seed));
                 if (floor + MasjidComplexLayout.StructureHeight > GameConstants.ChunkHeight) continue;
-                return new MasjidDistrictLayout(origin, floor);
+                return new MasjidDistrictLayout(origin, floor, seed);
             }
             throw new InvalidOperationException("No safe nearby site is available for the masjid district.");
+        }
+
+        public static MasjidDistrictLayout Restore(int seed, int version, Vector2Int origin, int floorY)
+        {
+            if (version != MasjidDistrictLayout.CurrentVersion)
+                throw new ArgumentException("Unsupported masjid district generation version: " + version, nameof(version));
+            if (Array.IndexOf(CandidateOrigins, origin) < 0)
+                throw new ArgumentException("The saved masjid district origin is not a valid nearby site.", nameof(origin));
+            var layout = new MasjidDistrictLayout(origin, floorY, seed);
+            for (int x = layout.Bounds.xMin; x < layout.Bounds.xMax; x++)
+            for (int z = layout.Bounds.zMin; z < layout.Bounds.zMax; z++)
+                if (WorldGenerator.GetTerrainSurfaceY(x, z, seed) > floorY)
+                    throw new ArgumentException("The saved masjid district floor is below the terrain.", nameof(floorY));
+            return layout;
         }
     }
 }

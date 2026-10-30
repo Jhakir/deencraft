@@ -5,6 +5,7 @@
         "DeenCraft.Core",
         "DeenCraft.Auth",
         "DeenCraft.Player",
+        "DeenCraft.Villager",
         "DeenCraft.World",
         "DeenCraft.Session"
     ],

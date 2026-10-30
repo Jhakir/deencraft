@@ -2,6 +2,7 @@
 using UnityEngine;
 using DeenCraft;
 using DeenCraft.Player;
+using DeenCraft.World;
 
 namespace DeenCraft.Animals
 {
@@ -44,10 +45,22 @@ namespace DeenCraft.Animals
         public AnimalType      AnimalType => _animalType;
         public bool            CanBeSheared => _canBeSheared;
 
+        public void Configure(AnimalType animalType)
+        {
+            if (!System.Enum.IsDefined(typeof(AnimalType), animalType))
+                throw new System.ArgumentOutOfRangeException(nameof(animalType));
+            _animalType = animalType;
+        }
+
         // ── Unity lifecycle ───────────────────────────────────────────────────
         private void Awake()
         {
             _cc    = GetComponent<CharacterController>();
+        }
+
+        private void OnEnable()
+        {
+            _verticalVelocity = 0f;
             _brain = new AnimalBrainData();
         }
 
@@ -149,6 +162,19 @@ namespace DeenCraft.Animals
                 _verticalVelocity = GroundedBump;
             _verticalVelocity += Gravity * Time.deltaTime;
 
+            ChunkManager world = ChunkManager.Instance;
+            if (world != null)
+            {
+                Vector3 destination = transform.position + direction * speed * Time.deltaTime;
+                float margin = _cc.radius + _cc.skinWidth;
+                for (int x = -1; x <= 1; x += 2)
+                for (int z = -1; z <= 1; z += 2)
+                {
+                    Vector3 corner = destination + new Vector3(x * margin, 0f, z * margin);
+                    if (!world.IsChunkReady(ChunkManager.WorldToChunkCoord(Vector3Int.FloorToInt(corner))))
+                        direction = Vector3.zero;
+                }
+            }
             _cc.Move((direction * speed + Vector3.up * _verticalVelocity) * Time.deltaTime);
         }
     }

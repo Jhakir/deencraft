@@ -1,11 +1,61 @@
 using NUnit.Framework;
 using DeenCraft.World;
 using DeenCraft;
+using UnityEngine;
 
 namespace DeenCraft.Tests.EditMode
 {
     public class ChunkMesherTests
     {
+        [Test]
+        public void SingleBlock_AllTrianglesFaceAwayFromBlockCentre()
+        {
+            var chunk = new ChunkData();
+            chunk.SetBlock(5, 5, 5, BlockType.Stone);
+            var mesh = ChunkMesher.BuildMesh(chunk, null);
+            var centre = new Vector3(5.5f, 5.5f, 5.5f);
+
+            for (int i = 0; i < mesh.Triangles.Length; i += 3)
+            {
+                Vector3 a = mesh.Vertices[mesh.Triangles[i]];
+                Vector3 b = mesh.Vertices[mesh.Triangles[i + 1]];
+                Vector3 c = mesh.Vertices[mesh.Triangles[i + 2]];
+                Vector3 normal = Vector3.Cross(b - a, c - a);
+                Assert.Greater(Vector3.Dot(normal, (a + b + c) / 3f - centre), 0f,
+                    $"Triangle {i / 3} faces inside the block.");
+            }
+        }
+
+        [Test]
+        public void ChunkCollider_CatchesPlayerRayFromAbove()
+        {
+            var chunk = new ChunkData();
+            chunk.SetBlock(5, 5, 5, BlockType.Stone);
+            var go = new GameObject("Terrain collision test");
+            Mesh mesh = null;
+            bool originalBackfaces = Physics.queriesHitBackfaces;
+            try
+            {
+                Physics.queriesHitBackfaces = false;
+                var view = go.AddComponent<ChunkView>();
+                view.ApplyMesh(ChunkMesher.BuildMesh(chunk, null));
+                mesh = go.GetComponent<MeshFilter>().sharedMesh;
+                Physics.SyncTransforms();
+
+                Assert.IsTrue(go.GetComponent<MeshCollider>().Raycast(
+                    new Ray(new Vector3(5.5f, 10f, 5.5f), Vector3.down),
+                    out RaycastHit hit, 10f), "Ground must collide from above, not only below.");
+                Assert.AreEqual(6f, hit.point.y, 0.001f);
+                Assert.Greater(hit.normal.y, 0f);
+            }
+            finally
+            {
+                Physics.queriesHitBackfaces = originalBackfaces;
+                Object.DestroyImmediate(go);
+                if (mesh != null) Object.DestroyImmediate(mesh);
+            }
+        }
+
         [Test]
         public void AllAirChunk_ProducesEmptyMesh()
         {

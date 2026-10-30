@@ -46,6 +46,19 @@ namespace DeenCraft.World
             new Color32( 64, 184, 216, 255),  // 27 WaterSlide
         };
 
+        /// <summary>
+        /// Colour used to render the given block. Single source of truth shared by
+        /// the mesher and the UI (hotbar swatches), so they can never drift apart.
+        /// Returns transparent for any block without a colour entry.
+        /// </summary>
+        public static Color32 GetBlockColour(BlockType block)
+        {
+            int index = (int)block;
+            if (index < 0 || index >= TotalBlockTypes)
+                return new Color32(0, 0, 0, 0);
+            return BlockColours[index];
+        }
+
         // neighbors: [0]=+X, [1]=-X, [2]=+Z, [3]=-Z
         public static MeshData BuildMesh(ChunkData chunk, ChunkData[] neighbors)
         {
@@ -68,9 +81,10 @@ namespace DeenCraft.World
                 {
                     bool isBack = (backFace == 1);
 
-                    for (pos[axis] = -1; pos[axis] < dims[axis];)
+                    // Start at -1 so the negative-facing boundary slice (the -X/-Y/-Z faces
+                    // of blocks at index 0) is emitted instead of skipped.
+                    for (pos[axis] = -1; pos[axis] < dims[axis]; pos[axis]++)
                     {
-                        pos[axis]++;
 
                         // Build mask for this slice
                         int n = 0;
@@ -128,8 +142,9 @@ namespace DeenCraft.World
                                 du[uAxis] = w;
                                 dv[vAxis] = h;
 
-                                // Offset top-face origin along axis for positive direction
-                                int axisOffset = isBack ? 0 : 1;
+                                // The face between slice p and p+1 always lies on plane p+1,
+                                // for both front and back faces.
+                                const int axisOffset = 1;
 
                                 var v0 = new Vector3(origin[0] + (axis == 0 ? axisOffset : 0),
                                                      origin[1] + (axis == 1 ? axisOffset : 0),
@@ -178,13 +193,13 @@ namespace DeenCraft.World
 
             if (!flip)
             {
-                tris.Add(start);     tris.Add(start + 2); tris.Add(start + 1);
-                tris.Add(start);     tris.Add(start + 3); tris.Add(start + 2);
+                tris.Add(start);     tris.Add(start + 1); tris.Add(start + 2);
+                tris.Add(start);     tris.Add(start + 2); tris.Add(start + 3);
             }
             else
             {
-                tris.Add(start);     tris.Add(start + 1); tris.Add(start + 2);
-                tris.Add(start);     tris.Add(start + 2); tris.Add(start + 3);
+                tris.Add(start);     tris.Add(start + 2); tris.Add(start + 1);
+                tris.Add(start);     tris.Add(start + 3); tris.Add(start + 2);
             }
         }
 

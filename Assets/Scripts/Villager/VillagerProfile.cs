@@ -61,6 +61,13 @@ namespace DeenCraft.Villager
             rng = rng ?? new System.Random();
             var trades = new TradeOffer[]
             {
+                new TradeOffer(ItemId.Wood,   4, ItemId.Gold,         1),
+                new TradeOffer(ItemId.Wheat,  5, ItemId.Gold,         1),
+                new TradeOffer(ItemId.Wool,   3, ItemId.Gold,         1),
+                new TradeOffer(ItemId.Gold,   1, ItemId.Bread,        2),
+                new TradeOffer(ItemId.Gold,   1, ItemId.MudBrick,    12),
+                new TradeOffer(ItemId.Gold,   2, ItemId.Falafel,      4),
+                new TradeOffer(ItemId.Gold,   4, ItemId.Diamond,      1),
                 new TradeOffer(ItemId.Diamond, 1, ItemId.WoodPickaxe,  2),
                 new TradeOffer(ItemId.Diamond, 2, ItemId.StonePickaxe, 1),
                 new TradeOffer(ItemId.Gold,    3, ItemId.WoodAxe,      1),

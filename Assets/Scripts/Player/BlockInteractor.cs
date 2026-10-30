@@ -20,6 +20,7 @@ namespace DeenCraft.Player
     [RequireComponent(typeof(InventoryHolder))]
     public class BlockInteractor : MonoBehaviour
     {
+        public static event System.Action<GameObject, string> BlockEditDenied;
         // ── Inspector ─────────────────────────────────────────────────────────
         [SerializeField] private Camera _playerCamera;
 
@@ -42,7 +43,12 @@ namespace DeenCraft.Player
 
         private void Update()
         {
+            if (_controller != null && !_controller.CanProcessGameplayInput) return;
             if (_playerCamera == null || ChunkManager.Instance == null) return;
+
+            // The first click is consumed by the browser to capture the pointer,
+            // so ignore interaction until the cursor is actually locked.
+            if (Cursor.lockState != CursorLockMode.Locked) return;
 
             if (Input.GetMouseButtonDown(0)) TryMine();
             if (Input.GetMouseButtonDown(1)) TryPlace();
@@ -57,7 +63,7 @@ namespace DeenCraft.Player
             BlockType blockType = ChunkManager.Instance.GetBlock(blockPos.x, blockPos.y, blockPos.z);
             if (blockType == BlockType.Air || blockType == BlockType.Water) return;
 
-            ChunkManager.Instance.SetBlock(blockPos, BlockType.Air);
+            if (!ApplyEdit(blockPos, BlockType.Air)) return;
 
             // Give the block's item drop to the player
             ItemId itemId = BlockItemMap.BlockTypeToItemId(blockType);
@@ -84,8 +90,20 @@ namespace DeenCraft.Player
             // Safety: never place a block that would clip into the player
             if (IsInsidePlayer(placePos)) return;
 
-            ChunkManager.Instance.SetBlock(placePos, blockType);
+            if (!ApplyEdit(placePos, blockType)) return;
             _inventoryHolder.Inventory.RemoveItem(activeItem.ItemId, 1);
+        }
+
+        private bool ApplyEdit(Vector3Int position, BlockType block)
+        {
+            BlockEditResult result = ChunkManager.Instance.TrySetBlock(position, block);
+            if (result == BlockEditResult.Success) return true;
+            string message = result == BlockEditResult.Protected
+                ? "This masjid is a protected landmark. You can explore, but not change its blocks."
+                : "This area is not ready for building. Please move closer and try again.";
+            if (BlockEditDenied != null) BlockEditDenied.Invoke(gameObject, message);
+            else Debug.LogWarning("[BlockInteractor] " + message, this);
+            return false;
         }
 
         // ── Entity interaction ────────────────────────────────────────────────
@@ -93,12 +111,11 @@ namespace DeenCraft.Player
         {
             if (_playerCamera == null) return;
 
-            Ray ray = GetCentreRay();
-            if (!Physics.Raycast(ray, out RaycastHit hit, GameConstants.PlayerReach)) return;
+            if (!TryGetCameraHit(out RaycastHit hit)) return;
 
             // IInteractable covers horses, boats, villagers, sheep, etc.
             // No direct reference to Animals/Villager assemblies needed — only the Core interface.
-            var interactable = hit.collider.GetComponent<IInteractable>();
+            var interactable = hit.collider.GetComponentInParent<IInteractable>();
             interactable?.Interact(gameObject);
         }
 
@@ -107,10 +124,8 @@ namespace DeenCraft.Player
         private bool TryGetTargetBlock(out RaycastHit hit, out Vector3Int blockPos)
         {
             blockPos = Vector3Int.zero;
-            Ray ray  = GetCentreRay();
-
-            if (!Physics.Raycast(ray, out hit, GameConstants.PlayerReach))
-                return false;
+            if (!TryGetCameraHit(out hit)) return false;
+            if (hit.collider.GetComponent<ChunkView>() == null) return false;
 
             // Step slightly inside the hit surface to identify the correct block voxel
             Vector3 inside = hit.point - hit.normal * 0.5f;
@@ -123,6 +138,25 @@ namespace DeenCraft.Player
             return new Ray(
                 _playerCamera.transform.position,
                 _playerCamera.transform.forward);
+        }
+
+        private bool TryGetCameraHit(out RaycastHit hit)
+        {
+            hit = default;
+            if (_playerCamera == null) return false;
+            float distance = GameConstants.PlayerReach +
+                Vector3.Distance(_playerCamera.transform.position, transform.position);
+            RaycastHit[] hits = Physics.RaycastAll(GetCentreRay(), distance, Physics.DefaultRaycastLayers,
+                QueryTriggerInteraction.Ignore);
+            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+            foreach (var candidate in hits)
+            {
+                if (candidate.collider.transform.IsChildOf(transform)) continue;
+                if (Vector3.Distance(transform.position, candidate.point) > GameConstants.PlayerReach) return false;
+                hit = candidate;
+                return true;
+            }
+            return false;
         }
 
         private bool IsInsidePlayer(Vector3Int pos)

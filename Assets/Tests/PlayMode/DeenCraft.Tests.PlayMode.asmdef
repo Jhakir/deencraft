@@ -6,6 +6,11 @@
         "DeenCraft.Auth",
         "DeenCraft.World",
         "DeenCraft.Player",
+        "DeenCraft.Animals",
+        "DeenCraft.Villager",
+        "DeenCraft.UI",
+        "DeenCraft.Core",
+        "UnityEngine.UI",
         "DeenCraft.Session"
     ],
     "includePlatforms": [],
