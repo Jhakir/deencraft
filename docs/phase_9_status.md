@@ -426,8 +426,9 @@ update. No hostile animals or combat mechanics were added.
 
 ## Masjid Discovery District — 2026-10-27
 
-Implementation is on `feature/masjid-discovery-district`, preserving the existing
-shared workspace changes. The approved scope is **exploration first**:
+Implementation was merged locally into `main` from
+`feature/masjid-discovery-district`, including the approved existing game
+dependencies. The approved scope is **exploration first**:
 
 - Four original, regional architectural interpretations: Saudi/Najdi-inspired
   courtyard, Iraqi-inspired brickwork, Pakistani/Mughal-inspired grouped domes,
@@ -468,6 +469,8 @@ shared workspace changes. The approved scope is **exploration first**:
   and reuse of the same content objects after a same-seed world reset.
 - **6 hosting regression tests passed**; the existing port 8080 server returned
   HTTP 200 after the final build.
+- After the local fast-forward merge, both focused Unity suites were rerun on
+  `main`: **108 EditMode and 14 PlayMode passed**, with zero failures.
 - Scene assembly persisted the population, approach path, reading panel, and font
   references. Final WebGL build succeeded in **6:04**, producing **17.0 MB**.
 - Read-only code review raised a possible disconnected-path concern. A regression
