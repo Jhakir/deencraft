@@ -12,6 +12,12 @@ namespace DeenCraft.World
     {
         public static void Generate(ChunkData chunk, int chunkX, int chunkZ, int seed)
         {
+            GenerateTerrain(chunk, chunkX, chunkZ, seed);
+            FeatureGenerator.Decorate(chunk, chunkX, chunkZ, seed);
+        }
+
+        public static void GenerateTerrain(ChunkData chunk, int chunkX, int chunkZ, int seed)
+        {
             float seedOffset = seed * 0.17f;
 
             for (int lx = 0; lx < GameConstants.ChunkWidth; lx++)
@@ -70,8 +76,28 @@ namespace DeenCraft.World
                 }
             }
 
-            // Feature decoration (trees, vegetation, structures)
-            FeatureGenerator.Decorate(chunk, chunkX, chunkZ, seed);
+        }
+
+        public static int GetTerrainSurfaceY(int worldX, int worldZ, int seed)
+        {
+            int surface = GetSurfaceY(worldX, worldZ, seed);
+            if (BiomeSystem.GetBiome(worldX, worldZ, seed) == BiomeType.Desert)
+            {
+                float dune = Mathf.PerlinNoise(worldX * GameConstants.DuneNoiseScale,
+                    worldZ * GameConstants.DuneNoiseScale);
+                surface = Mathf.Clamp(surface + Mathf.FloorToInt(dune * GameConstants.DuneHeight),
+                    GameConstants.MinTerrainHeight, GameConstants.MaxTerrainHeight);
+            }
+            int chunkX = Mathf.FloorToInt((float)worldX / GameConstants.ChunkWidth);
+            int chunkZ = Mathf.FloorToInt((float)worldZ / GameConstants.ChunkDepth);
+            int localX = worldX - chunkX * GameConstants.ChunkWidth;
+            BiomeType centre = BiomeSystem.GetBiome(
+                chunkX * GameConstants.ChunkWidth + GameConstants.ChunkWidth / 2,
+                chunkZ * GameConstants.ChunkDepth + GameConstants.ChunkDepth / 2, seed);
+            if (centre == BiomeType.Riverside && localX >= GameConstants.RiverXMin &&
+                localX <= GameConstants.RiverXMax && surface <= GameConstants.SeaLevel + 10)
+                return GameConstants.SeaLevel - 1;
+            return Mathf.Max(surface, GameConstants.SeaLevel - 1);
         }
 
         /// <summary>Returns the terrain surface Y at world position (worldX, worldZ) for a given seed.</summary>
